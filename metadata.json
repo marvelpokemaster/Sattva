@@ -1,0 +1,6 @@
+{
+  "name": "Sattva",
+  "description": "Connect with the Divine, discover authentic Vedic Pujas, and support sacred Gaushala Seva.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
