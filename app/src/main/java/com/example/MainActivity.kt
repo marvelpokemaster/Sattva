@@ -68,6 +68,7 @@ fun SattvaApp(
     val selectedGaushalaId by viewModel.selectedGaushalaId.collectAsState()
     val selectedAnimalId by viewModel.selectedAnimalId.collectAsState()
 
+    val authUser by viewModel.authUser.collectAsState()
     val allPujas by viewModel.allPujas.collectAsState()
     val allGaushalas by viewModel.allGaushalas.collectAsState()
     val allAnimals by viewModel.allAnimals.collectAsState()
@@ -232,6 +233,7 @@ fun SattvaApp(
                                 MainTab.PROFILE -> {
                                     ProfileScreen(
                                         userProfile = userProfile,
+                                        firebaseUser = authUser,
                                         allPujas = allPujas,
                                         contributions = sevaContributions,
                                         familyMembers = familyMembers,
@@ -240,6 +242,18 @@ fun SattvaApp(
                                         },
                                         onAddFamilyMember = { member ->
                                             viewModel.addFamilyMember(member)
+                                        },
+                                        onSignInWithEmail = { email, pass, cb ->
+                                            viewModel.signInWithEmail(email, pass, cb)
+                                        },
+                                        onSignUpWithEmail = { email, pass, name, cb ->
+                                            viewModel.signUpWithEmail(email, pass, name, cb)
+                                        },
+                                        onSignInAsDevotee = { name, cb ->
+                                            viewModel.signInAsDevotee(name, cb)
+                                        },
+                                        onSignOut = {
+                                            viewModel.signOut()
                                         }
                                     )
                                 }

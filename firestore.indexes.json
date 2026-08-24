@@ -1,0 +1,27 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "puja_bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "bookingDateStr", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "seva_contributions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "pujas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "category", "order": "ASCENDING" },
+        { "fieldPath": "isFeatured", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

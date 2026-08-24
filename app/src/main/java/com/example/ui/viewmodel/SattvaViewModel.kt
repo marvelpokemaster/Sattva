@@ -14,7 +14,10 @@ import com.example.data.model.PanchangInfo
 import com.example.data.model.Puja
 import com.example.data.model.SevaContribution
 import com.example.data.model.UserProfile
+import com.example.data.remote.firebase.FirebaseAuthRepository
+import com.example.data.remote.firebase.FirebaseInitializer
 import com.example.data.repository.SattvaRepository
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +36,7 @@ enum class MainTab {
 class SattvaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: SattvaRepository
+    private val authRepo: FirebaseAuthRepository = FirebaseInitializer.authRepository
     private val geminiService = GeminiService()
 
     // Navigation & Tab State
@@ -61,10 +65,6 @@ class SattvaViewModel(application: Application) : AndroidViewModel(application) 
     private val _gaushalaViewMode = MutableStateFlow("List") // "List" or "Map"
     val gaushalaViewMode: StateFlow<String> = _gaushalaViewMode.asStateFlow()
 
-    // Family Members in Profile
-    private val _familyMembers = MutableStateFlow<List<FamilyMember>>(emptyList())
-    val familyMembers: StateFlow<List<FamilyMember>> = _familyMembers.asStateFlow()
-
     // AI Chat Messages
     private val _chatMessages = MutableStateFlow<List<ChatMessage>>(
         listOf(
@@ -91,12 +91,15 @@ class SattvaViewModel(application: Application) : AndroidViewModel(application) 
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
     // Repository Flows
+    val authUser: StateFlow<FirebaseUser?>
+    val isUserSignedIn: StateFlow<Boolean>
     val allPujas: StateFlow<List<Puja>>
     val allGaushalas: StateFlow<List<Gaushala>>
     val allAnimals: StateFlow<List<AnimalResident>>
     val urgentAnimals: StateFlow<List<AnimalResident>>
     val userProfile: StateFlow<UserProfile?>
     val sevaContributions: StateFlow<List<SevaContribution>>
+    val familyMembers: StateFlow<List<FamilyMember>>
 
     val todayPanchang: PanchangInfo
     val todayWisdom: DailyWisdom
@@ -105,16 +108,19 @@ class SattvaViewModel(application: Application) : AndroidViewModel(application) 
         val database = AppDatabase.getInstance(application)
         repository = SattvaRepository(database)
 
+        authUser = repository.authState.stateIn(viewModelScope, SharingStarted.Lazily, repository.currentFirebaseUser)
+        isUserSignedIn = MutableStateFlow(repository.isUserSignedIn).asStateFlow()
+
         allPujas = repository.allPujas.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
         allGaushalas = repository.allGaushalas.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
         allAnimals = repository.allAnimals.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
         urgentAnimals = repository.urgentAnimals.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
         userProfile = repository.userProfile.stateIn(viewModelScope, SharingStarted.Lazily, UserProfile())
         sevaContributions = repository.allContributions.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        familyMembers = repository.familyMembers.stateIn(viewModelScope, SharingStarted.Lazily, repository.getDefaultFamilyMembers())
 
         todayPanchang = repository.getTodayPanchang()
         todayWisdom = repository.getTodayWisdom()
-        _familyMembers.value = repository.getDefaultFamilyMembers()
 
         viewModelScope.launch {
             repository.seedInitialDataIfEmpty()
@@ -127,7 +133,6 @@ class SattvaViewModel(application: Application) : AndroidViewModel(application) 
 
     fun selectTab(tab: MainTab) {
         _currentTab.value = tab
-        // Reset sub-screen selections when switching primary tabs
         if (tab != MainTab.HOME && tab != MainTab.EXPLORE) {
             _selectedPujaId.value = null
         }
@@ -189,7 +194,8 @@ class SattvaViewModel(application: Application) : AndroidViewModel(application) 
 
     fun bookPuja(pujaId: String, gotra: String, name: String, date: String) {
         viewModelScope.launch {
-            repository.bookPuja(pujaId, gotra, name, date)
+            val sankalpa = _generatedSankalpa.value
+            repository.bookPuja(pujaId, gotra, name, date, sankalpa)
             _toastMessage.value = "Sankalpa successfully registered! Prasad will be dispatched."
         }
     }
@@ -249,12 +255,63 @@ class SattvaViewModel(application: Application) : AndroidViewModel(application) 
     fun updateSpiritualIdentity(gotra: String, nakshatra: String, rashi: String) {
         viewModelScope.launch {
             repository.updateSpiritualIdentity(gotra, nakshatra, rashi)
-            _toastMessage.value = "Spiritual Identity updated successfully."
+            _toastMessage.value = "Spiritual Identity updated successfully in Cloud Firestore."
         }
     }
 
     fun addFamilyMember(member: FamilyMember) {
-        _familyMembers.value = _familyMembers.value + member
-        _toastMessage.value = "Family member ${member.name} added for Sankalpas."
+        viewModelScope.launch {
+            repository.addFamilyMember(member)
+            _toastMessage.value = "Family member ${member.name} added for Sankalpas."
+        }
+    }
+
+    // Firebase Auth actions
+    fun signInWithEmail(email: String, pass: String, onComplete: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            authRepo.signInWithEmail(email, pass).onSuccess {
+                _toastMessage.value = "Welcome back, ${it.displayName ?: "Devotee"}!"
+                onComplete(true, null)
+            }.onFailure {
+                onComplete(false, it.message)
+            }
+        }
+    }
+
+    fun signUpWithEmail(email: String, pass: String, name: String, onComplete: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            authRepo.signUpWithEmail(email, pass, name).onSuccess {
+                _toastMessage.value = "Welcome to Sattva, $name!"
+                onComplete(true, null)
+            }.onFailure {
+                onComplete(false, it.message)
+            }
+        }
+    }
+
+    fun signInAsDevotee(displayName: String = "Devotee Arjun", onComplete: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            authRepo.signInAnonymously(displayName).onSuccess {
+                _toastMessage.value = "Signed in as $displayName."
+                onComplete(true, null)
+            }.onFailure {
+                onComplete(false, it.message)
+            }
+        }
+    }
+
+    fun signOut() {
+        authRepo.signOut()
+        _toastMessage.value = "Signed out successfully."
+    }
+
+    fun uploadProfilePhoto(bytes: ByteArray) {
+        viewModelScope.launch {
+            repository.uploadAvatar(bytes).onSuccess {
+                _toastMessage.value = "Profile picture updated in Firebase Storage."
+            }.onFailure {
+                _toastMessage.value = "Failed to upload photo: ${it.message}"
+            }
+        }
     }
 }

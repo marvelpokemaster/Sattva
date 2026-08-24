@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isPendingOnly() {
+      return request.resource.data.status == 'PENDING' &&
+             request.resource.data.paymentStatus == 'PENDING';
+    }
+
+    // Public catalog collections (Read-only for users, writes restricted to Admin/Backend)
+    match /pujas/{pujaId} {
+      allow read: if true;
+      allow write: if false; // Admin/Backend only
+    }
+
+    match /gaushalas/{gaushalaId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /updates/{updateId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    match /animals/{animalId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /medical_records/{recordId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    match /content_daily/{dateKey} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User-scoped private documents & subcollections
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) &&
+        // Protect privileged counter fields from direct manipulation if desired
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerifiedAdmin']));
+      allow delete: if false;
+
+      // Family Members for Sankalpa
+      match /family_members/{memberId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Bookmarks & Favorites
+      match /bookmarks/{targetId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Puja Bookings (Client can create PENDING bookings; status change to PAID/CONFIRMED requires trusted backend)
+      match /puja_bookings/{bookingId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isPendingOnly();
+        allow update: if isOwner(userId) &&
+          // Cannot modify status or paymentStatus to confirmed/paid from client
+          request.resource.data.status == resource.data.status &&
+          request.resource.data.paymentStatus == resource.data.paymentStatus;
+        allow delete: if false;
+      }
+
+      // Seva Contributions (Client creates PENDING; verification done by backend)
+      match /seva_contributions/{contributionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.paymentStatus == 'PENDING';
+        allow update: if false;
+        allow delete: if false;
+      }
+
+      // Push Notifications
+      match /notifications/{notificationId} {
+        allow read: if isOwner(userId);
+        allow update: if isOwner(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+        allow create, delete: if false;
+      }
+    }
+
+    // Payment Intents (Server managed)
+    match /payment_intents/{intentId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false; // Cloud Functions / Server only
+    }
+  }
+}

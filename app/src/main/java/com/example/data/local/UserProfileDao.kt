@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserProfileDao {
-    @Query("SELECT * FROM user_profile WHERE id = 'primary_user' LIMIT 1")
+    @Query("SELECT * FROM user_profile LIMIT 1")
     fun getUserProfile(): Flow<UserProfile?>
+
+    @Query("SELECT * FROM user_profile WHERE id = :userId LIMIT 1")
+    fun getUserProfileById(userId: String): Flow<UserProfile?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProfile(profile: UserProfile)
@@ -19,12 +22,12 @@ interface UserProfileDao {
     @Update
     suspend fun updateProfile(profile: UserProfile)
 
-    @Query("UPDATE user_profile SET gotra = :gotra, nakshatra = :nakshatra, rashi = :rashi WHERE id = 'primary_user'")
+    @Query("UPDATE user_profile SET gotra = :gotra, nakshatra = :nakshatra, rashi = :rashi")
     suspend fun updateSpiritualIdentity(gotra: String, nakshatra: String, rashi: String)
 
-    @Query("UPDATE user_profile SET pujasCount = pujasCount + 1 WHERE id = 'primary_user'")
+    @Query("UPDATE user_profile SET pujasCount = pujasCount + 1")
     suspend fun incrementPujaCount()
 
-    @Query("UPDATE user_profile SET totalContributedRupees = totalContributedRupees + :amount WHERE id = 'primary_user'")
+    @Query("UPDATE user_profile SET totalContributedRupees = totalContributedRupees + :amount")
     suspend fun addContribution(amount: Int)
 }
