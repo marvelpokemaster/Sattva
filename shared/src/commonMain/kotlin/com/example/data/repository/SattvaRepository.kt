@@ -32,7 +32,7 @@ class SattvaRepository(
     private val pushRepo: com.example.data.remote.firebase.NotificationRepository = AppDependencies.notificationRepository
 ) {
     private val TAG = "SattvaRepository"
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.Default)
 
     private val pujaDao = database.pujaDao()
     private val gaushalaDao = database.gaushalaDao()
@@ -45,8 +45,8 @@ class SattvaRepository(
 
     // Auth state flow
     val authState: Flow<AuthUser?> = authRepo.authState
-    val currentFirebaseUser: AuthUser? get() = null
-    val isUserSignedIn: Boolean get() = true
+    val currentFirebaseUser: AuthUser? get() = authRepo.currentUser
+    val isUserSignedIn: Boolean get() = authRepo.currentUser != null
 
     // Catalog Flows (Cached in Room, populated from Firestore)
     val allPujas: Flow<List<Puja>> = pujaDao.getAllPujas()
@@ -94,9 +94,9 @@ class SattvaRepository(
                             userProfileDao.insertProfile(initialProfile)
                             userRepo.saveOrUpdateUserProfile(
                                 uid = uid,
-                                name = initialProfile.name,
+                                displayName = initialProfile.name,
                                 email = authUser.email,
-                                photoUrl = initialProfile.avatarUrl
+                                avatarUrl = initialProfile.avatarUrl
                             )
                         }
                     }
@@ -142,7 +142,7 @@ class SattvaRepository(
     suspend fun syncCatalogFromFirestore() {
         try {
             // Seed Firestore if empty
-            // catalogRepo.seedInitialDataIfEmpty()
+            catalogRepo.seedInitialDataIfEmpty()
 
             // Fetch Pujas from Firestore & update Room cache
             catalogRepo.getPujas().onSuccess { firestorePujas ->
@@ -301,7 +301,14 @@ class SattvaRepository(
     }
 
     suspend fun uploadAvatar(bytes: ByteArray, contentType: String = "image/jpeg"): Result<String> {
-        return Result.success("simulated_avatar_url")
+        val user = authRepo.currentUser
+            ?: return Result.failure(IllegalStateException("User is not signed in to Firebase"))
+        val uploadResult = storageRepo.uploadProfilePicture(user.uid, bytes)
+        uploadResult.onSuccess { downloadUrl ->
+            userProfileDao.updateAvatar(downloadUrl)
+            userRepo.saveOrUpdateUserProfile(uid = user.uid, avatarUrl = downloadUrl)
+        }
+        return uploadResult
     }
 
     // Static / Daily Vedic Content

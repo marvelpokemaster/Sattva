@@ -30,4 +30,7 @@ interface UserProfileDao {
 
     @Query("UPDATE user_profile SET totalContributedRupees = totalContributedRupees + :amount")
     suspend fun addContribution(amount: Int)
+
+    @Query("UPDATE user_profile SET avatarUrl = :avatarUrl")
+    suspend fun updateAvatar(avatarUrl: String)
 }

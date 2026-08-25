@@ -18,24 +18,23 @@ object FirebaseInitializer {
     var isInitialized: Boolean = false
         private set
 
-    lateinit var authRepository: FirebaseAuthRepositoryImpl
+    lateinit var authRepository: AuthRepository
         private set
 
-    lateinit var catalogRepository: FirestoreCatalogRepositoryImpl
+    lateinit var catalogRepository: CatalogRepository
         private set
 
-    lateinit var userRepository: FirestoreUserRepositoryImpl
+    lateinit var userRepository: UserRepository
         private set
 
-    lateinit var storageRepository: FirebaseStorageRepositoryImpl
+    lateinit var storageRepository: StorageRepository
         private set
 
-    lateinit var pushNotificationRepository: PushNotificationRepositoryImpl
+    lateinit var pushNotificationRepository: NotificationRepository
         private set
 
     fun initialize(context: Context) {
         try {
-            // Check if default FirebaseApp is already initialized
             val app = FirebaseApp.initializeApp(context)
             isInitialized = app != null || FirebaseApp.getApps(context).isNotEmpty()
             Log.i(TAG, "Firebase initialized successfully. Active apps count: ${FirebaseApp.getApps(context).size}")
@@ -44,15 +43,34 @@ object FirebaseInitializer {
             isInitialized = false
         }
 
-        // Initialize repositories
-        authRepository = FirebaseAuthRepositoryImpl()
-        catalogRepository = FirestoreCatalogRepositoryImpl()
-        userRepository = FirestoreUserRepositoryImpl()
-        storageRepository = FirebaseStorageRepositoryImpl()
-        pushNotificationRepository = PushNotificationRepositoryImpl()
+        val authImpl = FirebaseAuthRepositoryImpl()
+        val catalogImpl = FirestoreCatalogRepositoryImpl()
+        val userImpl = FirestoreUserRepositoryImpl()
+        val storageImpl = FirebaseStorageRepositoryImpl()
+        val pushImpl = PushNotificationRepositoryImpl()
+
+        authRepository = authImpl
+        catalogRepository = catalogImpl
+        userRepository = userImpl
+        storageRepository = storageImpl
+        pushNotificationRepository = pushImpl
 
         // Configure notification channels for FCM
-        
+        pushImpl.createNotificationChannels(context)
 
+        // Retrieve initial FCM token in background if available
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                pushImpl.getFcmToken().onSuccess { token ->
+                    Log.d(TAG, "Initial FCM Token obtained: $token")
+                    val currentUid = authImpl.currentUserId
+                    if (currentUid.isNotBlank()) {
+                        userImpl.updateFcmToken(currentUid, token)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "FCM token retrieval skipped: ${e.message}")
+            }
+        }
     }
 }

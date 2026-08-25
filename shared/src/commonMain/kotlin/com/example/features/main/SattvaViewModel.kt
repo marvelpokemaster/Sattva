@@ -18,6 +18,7 @@ import com.example.data.model.UserProfile
 import com.example.di.AppDependencies
 import com.example.data.repository.SattvaRepository
 import com.example.data.model.AuthUser
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -108,8 +109,10 @@ class SattvaViewModel : ViewModel() {
         val database = AppDependencies.database
         repository = SattvaRepository(database)
 
-        authUser = AppDependencies.authRepository.authState.stateIn(viewModelScope, SharingStarted.Lazily, null)
-        isUserSignedIn = MutableStateFlow(true).asStateFlow()
+        authUser = authRepo.authState.stateIn(viewModelScope, SharingStarted.Lazily, authRepo.currentUser)
+        isUserSignedIn = authRepo.authState
+            .map { it != null }
+            .stateIn(viewModelScope, SharingStarted.Lazily, authRepo.currentUser != null)
 
         allPujas = repository.allPujas.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
         allGaushalas = repository.allGaushalas.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -291,7 +294,7 @@ class SattvaViewModel : ViewModel() {
 
     fun signInAsDevotee(displayName: String = "Devotee", onComplete: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
-            authRepo.signInAnonymously().onSuccess {
+            authRepo.signInAnonymously(displayName).onSuccess {
                 _toastMessage.value = "Signed in as $displayName."
                 onComplete(true, null)
             }.onFailure {

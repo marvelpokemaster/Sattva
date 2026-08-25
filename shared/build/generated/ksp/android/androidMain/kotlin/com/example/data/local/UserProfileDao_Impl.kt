@@ -226,6 +226,20 @@ public class UserProfileDao_Impl(
     }
   }
 
+  public override suspend fun updateAvatar(avatarUrl: String) {
+    val _sql: String = "UPDATE user_profile SET avatarUrl = ?"
+    return performSuspending(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, avatarUrl)
+        _stmt.step()
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
   public companion object {
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }

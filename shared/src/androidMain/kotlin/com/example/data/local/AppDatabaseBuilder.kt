@@ -9,6 +9,7 @@ object AppDatabaseBuilder {
             context.applicationContext,
             AppDatabase::class.java,
             "sattva_spiritual_db"
-        ).fallbackToDestructiveMigration().build()
+        ).fallbackToDestructiveMigrationOnDowngrade(dropAllTables = false)
+        .build()
     }
 }

@@ -10,7 +10,7 @@ interface AuthRepository {
     val currentUserId: String
     suspend fun signInWithEmail(email: String, pass: String): Result<AuthUser>
     suspend fun signUpWithEmail(email: String, pass: String, name: String): Result<AuthUser>
-    suspend fun signInAnonymously(): Result<AuthUser>
+    suspend fun signInAnonymously(displayName: String = "Devotee"): Result<AuthUser>
     suspend fun signInWithGoogle(idToken: String): Result<AuthUser>
     suspend fun signOut()
 }
@@ -25,12 +25,24 @@ interface CatalogRepository {
     fun observeDailyWisdom(): Flow<List<FirestoreDailyContent>>
     suspend fun getPuja(id: String): FirestorePuja?
     suspend fun getGaushala(id: String): FirestoreGaushala?
+    suspend fun seedInitialDataIfEmpty(): Result<Unit>
 }
 
 interface UserRepository {
     fun observeUserProfile(uid: String): Flow<FirestoreUser?>
     suspend fun getUserProfile(uid: String): Result<FirestoreUser?>
-    suspend fun saveOrUpdateUserProfile(uid: String, name: String?, email: String?, photoUrl: String?)
+    suspend fun saveOrUpdateUserProfile(
+        uid: String,
+        displayName: String? = null,
+        email: String? = null,
+        phoneNumber: String? = null,
+        avatarUrl: String? = null,
+        city: String? = null,
+        gotra: String? = null,
+        nakshatra: String? = null,
+        rashi: String? = null,
+        fcmToken: String? = null
+    ): Result<Unit>
     suspend fun updateSpiritualIdentity(uid: String, gotra: String, nakshatra: String, rashi: String): Result<Unit>
     suspend fun updateFcmToken(uid: String, token: String): Result<Unit>
     fun observeFamilyMembers(uid: String): Flow<List<FirestoreFamilyMember>>
@@ -50,4 +62,7 @@ interface StorageRepository {
 
 interface NotificationRepository {
     suspend fun registerDeviceToken(userId: String, token: String)
+    suspend fun getFcmToken(): Result<String>
+    suspend fun subscribeToTopic(topic: String): Result<Unit>
+    suspend fun unsubscribeFromTopic(topic: String): Result<Unit>
 }

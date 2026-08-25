@@ -8,6 +8,6 @@ fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
     val dbFilePath = NSHomeDirectory() + "/sattva_database.db"
     return Room.databaseBuilder<AppDatabase>(
         name = dbFilePath,
-        factory = { AppDatabase::class.instantiateImpl() }
+        factory = { AppDatabaseConstructor.initialize() }
     ).setDriver(androidx.sqlite.driver.bundled.BundledSQLiteDriver())
 }
