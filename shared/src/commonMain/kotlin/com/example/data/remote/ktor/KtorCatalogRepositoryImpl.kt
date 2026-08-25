@@ -21,6 +21,12 @@ private data class AnimalResponse(
     val count: Int = 0
 )
 
+@Serializable
+private data class PujaResponse(
+    val pujas: List<FirestorePuja> = emptyList(),
+    val count: Int = 0
+)
+
 class KtorCatalogRepositoryImpl : CatalogRepository {
     private val client = KtorClient.httpClient
 
@@ -56,19 +62,26 @@ class KtorCatalogRepositoryImpl : CatalogRepository {
     }
 
     override suspend fun getPujas(): Result<List<FirestorePuja>> {
-        // Pujas are being phased out in V1, return empty list
-        return Result.success(emptyList())
+        return try {
+            val response: PujaResponse = client.get("${AppConfig.backendBaseUrl}/api/v1/catalog/pujas").body()
+            Result.success(response.pujas)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override fun observePujas(): Flow<List<FirestorePuja>> = flow {
-        emit(emptyList())
+        emit(getPujas().getOrDefault(emptyList()))
     }
 
     override fun observeDailyWisdom(): Flow<List<FirestoreDailyContent>> = flow {
         emit(emptyList())
     }
 
-    override suspend fun getPuja(id: String): FirestorePuja? = null
+    override suspend fun getPuja(id: String): FirestorePuja? {
+        val result = getPujas().getOrNull()
+        return result?.find { it.id == id }
+    }
     
     override suspend fun getGaushala(id: String): FirestoreGaushala? {
         val result = getGaushalas().getOrNull()

@@ -38,7 +38,30 @@ Response:
 }
 ```
 
-### 4. Welfare Statistics
+### 4. List Pujas
+`GET /api/v1/catalog/pujas`
+Query Parameters:
+- `category` (optional): Filter pujas by category (`Upcoming`, `Popular`, `By Temple`, `Special`).
+- `search` (optional): Case-insensitive search across title, temple, and location.
+
+Response:
+```json
+{
+  "pujas": [
+    {
+      "id": "maha_rudrabhishek",
+      "title": "Maha Rudrabhishek",
+      "templeName": "Kashi Vishwanath Temple, Varanasi",
+      "priceRupees": 2501,
+      "category": "Upcoming",
+      "isFeatured": true
+    }
+  ],
+  "count": 4
+}
+```
+
+### 5. Welfare Statistics
 `GET /api/v1/welfare`
 Returns system-wide impact statistics.
 

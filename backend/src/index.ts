@@ -51,6 +51,7 @@ export default {
           endpoints: [
             "/api/v1/catalog/gaushalas",
             "/api/v1/catalog/animals",
+            "/api/v1/catalog/pujas",
             "/api/v1/ai/ask",
             "/api/v1/welfare",
             "/api/v1/donations",
@@ -84,6 +85,29 @@ export default {
           results = results.filter((a: any) => a.gaushalaId === gaushalaId);
         }
         return new Response(JSON.stringify({ animals: results, count: results.length }), { status: 200, headers: corsHeaders });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    // Pujas
+    if (path === "/api/v1/catalog/pujas" && method === "GET") {
+      try {
+        let results = await fetchFirestoreCollection("pujas");
+        const category = url.searchParams.get("category");
+        const search = url.searchParams.get("search");
+        if (category && category !== "All") {
+          results = results.filter((p: any) => p.category?.toLowerCase() === category.toLowerCase());
+        }
+        if (search) {
+          const s = search.toLowerCase();
+          results = results.filter((p: any) =>
+            p.title?.toLowerCase().includes(s) ||
+            p.templeName?.toLowerCase().includes(s) ||
+            p.location?.toLowerCase().includes(s)
+          );
+        }
+        return new Response(JSON.stringify({ pujas: results, count: results.length }), { status: 200, headers: corsHeaders });
       } catch (err: any) {
         return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
       }
