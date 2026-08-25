@@ -129,6 +129,24 @@ export default {
       }
     }
 
+    // Welfare Updates
+    if (path === "/api/v1/catalog/welfare_updates" && method === "GET") {
+      try {
+        let results = await fetchFirestoreCollection("welfare_updates");
+        const gaushalaId = url.searchParams.get("gaushalaId");
+        const animalId = url.searchParams.get("animalId");
+        if (gaushalaId) {
+          results = results.filter((w: any) => w.gaushalaId === gaushalaId);
+        }
+        if (animalId) {
+          results = results.filter((w: any) => w.animalId === animalId);
+        }
+        return new Response(JSON.stringify({ updates: results, count: results.length }), { status: 200, headers: corsHeaders });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
     // --- Authenticated Endpoints Below ---
     const isAuthRoute = path === "/api/v1/profile" || path === "/api/v1/donations";
     let uid: string | null = null;

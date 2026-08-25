@@ -1,4 +1,4 @@
-package com.example.features.gaushala
+package com.example.features.animal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,10 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,32 +22,37 @@ import com.example.core.ui.theme.DeepMoss
 import com.example.core.ui.theme.RitualClay
 import com.example.core.ui.theme.SerifFontFamily
 import com.example.core.ui.theme.SurfaceIvory
-import com.example.data.model.Gaushala
+import com.example.data.model.AnimalResident
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GaushalaDiscoveryScreen(
-    gaushalas: List<Gaushala>,
+fun AnimalDiscoveryScreen(
+    animals: List<AnimalResident>,
     isLoading: Boolean,
-    onGaushalaClick: (String) -> Unit,
-    onSupportGaushala: (Gaushala) -> Unit,
-    onExploreAnimalsClick: () -> Unit = {},
+    onBack: () -> Unit = {},
+    onAnimalClick: (String) -> Unit,
+    onSupportClick: (AnimalResident) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
 
-    val filteredGaushalas = remember(gaushalas, searchQuery, selectedFilter) {
-        gaushalas.filter { g ->
+    val filteredAnimals = remember(animals, searchQuery, selectedFilter) {
+        animals.filter { a ->
             val matchesQuery = searchQuery.isBlank() ||
-                    g.name.contains(searchQuery, ignoreCase = true) ||
-                    g.location.contains(searchQuery, ignoreCase = true) ||
-                    g.state.contains(searchQuery, ignoreCase = true)
+                    a.name.contains(searchQuery, ignoreCase = true) ||
+                    a.breed.contains(searchQuery, ignoreCase = true) ||
+                    a.story.contains(searchQuery, ignoreCase = true)
 
             val matchesFilter = when (selectedFilter) {
-                "Kerala" -> g.state.contains("Kerala", ignoreCase = true) || g.location.contains("Kerala", ignoreCase = true)
-                "Top Transparent" -> g.transparencyTier.contains("Gold", ignoreCase = true) || g.transparencyTier.contains("Platinum", ignoreCase = true)
-                "Urgent Care" -> g.trustScorePercent >= 90
+                "Urgent" -> a.isUrgent || a.neededRupees > 0
+                "Native Breeds" -> a.breed != "Desi" || a.story.contains("native", ignoreCase = true) || a.story.contains("indigenous", ignoreCase = true)
+                "Recovering" -> a.healthStatus.contains("Recovering", ignoreCase = true)
+                "Healthy" -> a.healthStatus.contains("Healthy", ignoreCase = true)
                 else -> true
             }
 
@@ -59,8 +60,8 @@ fun GaushalaDiscoveryScreen(
         }
     }
 
-    val featured = filteredGaushalas.take(2)
-    val mostTransparent = filteredGaushalas.filter { it.transparencyTier.contains("Gold", ignoreCase = true) || it.transparencyTier.contains("Platinum", ignoreCase = true) }
+    val needsSupport = filteredAnimals.filter { it.neededRupees > 0 || it.isUrgent }
+    val nativeBreeds = filteredAnimals.filter { it.breed != "Desi" || it.story.contains("indigenous", ignoreCase = true) || it.story.contains("native", ignoreCase = true) }
     
     LazyColumn(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
@@ -68,14 +69,27 @@ fun GaushalaDiscoveryScreen(
     ) {
         item {
             Column(modifier = Modifier.padding(20.dp)) {
-                Text("Sanctuaries", fontFamily = SerifFontFamily, fontSize = 32.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DeepMoss)
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Meet the Animals",
+                        fontFamily = SerifFontFamily,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Search Bar
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search by name, city, or state...") },
+                    placeholder = { Text("Search by name, breed, or story...") },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = DeepMoss) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -94,7 +108,7 @@ fun GaushalaDiscoveryScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    listOf("All", "Top Transparent", "Kerala", "Urgent Care").forEach { filter ->
+                    listOf("All", "Urgent", "Native Breeds", "Recovering").forEach { filter ->
                         val isSelected = selectedFilter == filter
                         Card(
                             onClick = { selectedFilter = filter },
@@ -113,29 +127,6 @@ fun GaushalaDiscoveryScreen(
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Meet All Cattle Banner
-                Card(
-                    onClick = onExploreAnimalsClick,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = DeepMoss),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Meet All Cattle Residents", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Explore indigenous breeds, urgent rescues, and cow passports.", fontSize = 12.sp, color = Color.White.copy(alpha = 0.85f))
-                        }
-                        Text("Explore →", color = Color(0xFFFFD54F), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    }
-                }
             }
         }
         
@@ -145,48 +136,48 @@ fun GaushalaDiscoveryScreen(
                     CircularProgressIndicator(color = DeepMoss)
                 }
             }
-        } else if (filteredGaushalas.isEmpty()) {
+        } else if (filteredAnimals.isEmpty()) {
             item {
                 Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) {
-                    Text("No sanctuaries found matching your criteria.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("No animals found matching your search.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         } else {
-            if (featured.isNotEmpty()) {
+            if (needsSupport.isNotEmpty() && selectedFilter == "All") {
                 item {
-                    SectionHeader("Featured Sanctuaries")
+                    SectionHeader("Needs Urgent Support")
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(featured) { gaushala ->
-                            EditorialGaushalaCard(gaushala, onGaushalaClick, onSupportGaushala, modifier = Modifier.width(300.dp))
+                        items(needsSupport) { animal ->
+                            EditorialAnimalCard(animal, onAnimalClick, onSupportClick, modifier = Modifier.width(280.dp))
                         }
                     }
                 }
             }
             
-            if (mostTransparent.isNotEmpty()) {
+            if (nativeBreeds.isNotEmpty() && selectedFilter == "All") {
                 item {
-                    SectionHeader("Most Transparent")
+                    SectionHeader("Native & Indigenous Breeds")
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(mostTransparent) { gaushala ->
-                            EditorialGaushalaCard(gaushala, onGaushalaClick, onSupportGaushala, modifier = Modifier.width(300.dp))
+                        items(nativeBreeds) { animal ->
+                            EditorialAnimalCard(animal, onAnimalClick, onSupportClick, modifier = Modifier.width(280.dp))
                         }
                     }
                 }
             }
             
             item {
-                SectionHeader("All Sanctuaries (${filteredGaushalas.size})")
+                SectionHeader("All Residents (${filteredAnimals.size})")
             }
             
-            items(filteredGaushalas) { gaushala ->
-                Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
-                    EditorialGaushalaCard(gaushala, onGaushalaClick, onSupportGaushala, modifier = Modifier.fillMaxWidth())
+            items(filteredAnimals) { animal ->
+                Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                    EditorialAnimalCard(animal, onAnimalClick, onSupportClick, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -200,65 +191,67 @@ private fun SectionHeader(title: String) {
         style = MaterialTheme.typography.titleMedium,
         color = DeepMoss,
         fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 16.dp)
+        modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 12.dp)
     )
 }
 
 @Composable
-fun EditorialGaushalaCard(
-    gaushala: Gaushala,
+fun EditorialAnimalCard(
+    animal: AnimalResident,
     onClick: (String) -> Unit,
-    onSupport: (Gaushala) -> Unit,
+    onSupport: (AnimalResident) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.clickable { onClick(gaushala.id) },
+        modifier = modifier.clickable { onClick(animal.id) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceIvory),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
-            Box(modifier = Modifier.fillMaxWidth().height(180.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
                 ImageWithPlaceholder(
-                    model = gaushala.imageUrl,
-                    contentDescription = gaushala.name,
+                    model = animal.imageUrl,
+                    contentDescription = animal.name,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
                 
-                Row(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.White.copy(alpha = 0.9f))
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Verified, contentDescription = "Verified", tint = DeepMoss, modifier = Modifier.size(14.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(gaushala.transparencyTier, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepMoss)
+                if (animal.isUrgent) {
+                    Box(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(RitualClay)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text("Urgent Care", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
             
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = gaushala.name,
-                    fontFamily = SerifFontFamily,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 12.dp)) {
-                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = RitualClay, modifier = Modifier.size(14.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("${gaushala.location}, ${gaushala.state} • ${gaushala.animalsRescuedCount}+ Animals", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        text = animal.name,
+                        fontFamily = SerifFontFamily,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = animal.healthStatus,
+                        fontSize = 12.sp,
+                        color = if (animal.healthStatus == "Healthy") DeepMoss else RitualClay,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
                 }
                 
+                Spacer(modifier = Modifier.height(8.dp))
+                
                 Text(
-                    text = "“${gaushala.missionQuote}”",
+                    text = animal.story,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -268,12 +261,12 @@ fun EditorialGaushalaCard(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Button(
-                    onClick = { onSupport(gaushala) },
+                    onClick = { onSupport(animal) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = DeepMoss),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Support Seva", color = Color.White)
+                    Text("Sponsor Care", color = Color.White)
                 }
             }
         }

@@ -23,6 +23,8 @@ interface CatalogRepository {
     suspend fun getGaushalas(): Result<List<FirestoreGaushala>>
     suspend fun getAnimals(gaushalaId: String? = null): Result<List<FirestoreAnimal>>
     fun observeAnimals(gaushalaId: String? = null): Flow<List<FirestoreAnimal>>
+    fun observeWelfareUpdates(gaushalaId: String? = null, animalId: String? = null): Flow<List<FirestoreWelfareUpdate>>
+    suspend fun getWelfareUpdates(gaushalaId: String? = null, animalId: String? = null): Result<List<FirestoreWelfareUpdate>>
     fun observeDailyWisdom(): Flow<List<FirestoreDailyContent>>
     suspend fun getPuja(id: String): FirestorePuja?
     suspend fun getGaushala(id: String): FirestoreGaushala?

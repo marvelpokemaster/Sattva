@@ -10,6 +10,7 @@ import com.example.data.model.PanchangInfo
 import com.example.data.model.Puja
 import com.example.data.model.SevaContribution
 import com.example.data.model.UserProfile
+import com.example.data.model.WelfareUpdate
 
 import com.example.data.remote.firebase.model.FirestorePujaBooking
 import com.example.data.remote.firebase.model.FirestoreSevaContribution
@@ -281,6 +282,12 @@ class SattvaRepository(
         val user = authRepo.currentUser
         if (user != null) {
             userRepo.setBookmark(user.uid, id, "ANIMAL", isFav)
+        }
+    }
+
+    suspend fun getWelfareUpdates(gaushalaId: String? = null, animalId: String? = null): Result<List<WelfareUpdate>> {
+        return catalogRepo.getWelfareUpdates(gaushalaId, animalId).map { list ->
+            list.map { it.toWelfareUpdate() }
         }
     }
 

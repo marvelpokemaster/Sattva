@@ -48,3 +48,32 @@ val ErrorColor = Color(0xFFBA1A1A)
 val OnErrorColor = Color(0xFFFFFFFF)
 val ErrorContainerColor = Color(0xFFFFDAD6)
 val OnErrorContainerColor = Color(0xFF93000A)
+
+// Dark Theme Surface
+val DarkSurfaceColor = Color(0xFF161716) // Deep Charcoal / Earth
+val DarkSurfaceDim = Color(0xFF232524)
+val DarkSurfaceContainer = Color(0xFF262827)
+val DarkSurfaceContainerHigh = Color(0xFF2B2E2C)
+val DarkSurfaceIvory = Color(0xFF202220) 
+val DarkSurfaceVariant = Color(0xFF323533)
+
+val DarkOnSurfaceColor = Color(0xFFE3E3DC) // Warm Ivory Text
+val DarkOnSurfaceVariant = Color(0xFFC7C6BE)
+val DarkOutlineColor = Color(0xFF8F8E87)
+val DarkOutlineVariant = Color(0xFF474640)
+
+// Dark Theme Semantic
+val DarkPrimaryColor = Color(0xFFC7C6BE)
+val DarkOnPrimaryColor = Color(0xFF31302C)
+val DarkPrimaryContainerColor = Color(0xFF484742)
+val DarkOnPrimaryContainerColor = Color(0xFFE4E2DA)
+
+val DarkSecondaryColor = Color(0xFFFFB4AA)
+val DarkOnSecondaryColor = Color(0xFF690005)
+val DarkSecondaryContainerColor = Color(0xFF93000A)
+val DarkOnSecondaryContainerColor = Color(0xFFFFDAD6)
+
+val DarkTertiaryColor = Color(0xFFAFD0A1)
+val DarkOnTertiaryColor = Color(0xFF193712)
+val DarkTertiaryContainerColor = Color(0xFF314F26)
+val DarkOnTertiaryContainerColor = Color(0xFFCAECBC)

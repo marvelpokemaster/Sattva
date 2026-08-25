@@ -19,6 +19,8 @@ import com.example.core.ui.components.PlatformBackHandler
 import com.example.core.ui.components.SattvaBottomNav
 import com.example.core.ui.components.SattvaTopBar
 import com.example.features.animal.AnimalDetailScreen
+import com.example.features.animal.AnimalDiscoveryScreen
+import com.example.features.donation.DonationScreen
 import com.example.features.home.ExploreScreen
 import com.example.features.gaushala.GaushalaDetailScreen
 import com.example.features.gaushala.GaushalaDiscoveryScreen
@@ -32,20 +34,24 @@ import com.example.features.ai.VedicAiScreen
 
 @Composable
 fun MainScreen(
-    viewModel: SattvaViewModel = remember { SattvaViewModel() }
+    viewModel: SattvaViewModel = remember { SattvaViewModel() },
+    onGoogleSignIn: (() -> Unit)? = null
 ) {
-    var showSplash by remember { mutableStateOf(true) }
+    var showSplash by remember { mutableStateOf(false) }
 
     val currentTab by viewModel.currentTab.collectAsState()
     val onboardingCompleted by viewModel.onboardingCompleted.collectAsState()
     val selectedPujaId by viewModel.selectedPujaId.collectAsState()
     val selectedGaushalaId by viewModel.selectedGaushalaId.collectAsState()
     val selectedAnimalId by viewModel.selectedAnimalId.collectAsState()
+    val showAnimalDiscovery by viewModel.showAnimalDiscovery.collectAsState()
+    val donationTarget by viewModel.donationTarget.collectAsState()
 
     val authUser by viewModel.authUser.collectAsState()
     val allPujas by viewModel.allPujas.collectAsState()
     val allGaushalas by viewModel.allGaushalas.collectAsState()
     val allAnimals by viewModel.allAnimals.collectAsState()
+    val welfareUpdates by viewModel.welfareUpdates.collectAsState()
     val urgentAnimals by viewModel.urgentAnimals.collectAsState()
     val userProfile by viewModel.userProfile.collectAsState()
     val sevaContributions by viewModel.sevaContributions.collectAsState()
@@ -81,14 +87,44 @@ fun MainScreen(
         val selectedAnimal = allAnimals.find { it.id == selectedAnimalId }
 
         when {
+            donationTarget != null -> {
+                PlatformBackHandler { viewModel.closeDonation() }
+                DonationScreen(
+                    targetName = donationTarget!!.targetName,
+                    targetType = donationTarget!!.targetType,
+                    onBack = { viewModel.closeDonation() },
+                    onSubmit = { amount, category ->
+                        viewModel.submitDonation(amount, category)
+                    }
+                )
+            }
+
             selectedAnimal != null -> {
                 PlatformBackHandler { viewModel.closeAnimalDetail() }
                 AnimalDetailScreen(
+                    animalId = selectedAnimal.id,
                     animal = selectedAnimal,
-                    onBackClick = { viewModel.closeAnimalDetail() },
-                    onToggleFavorite = { viewModel.toggleAnimalFavorite(selectedAnimal.id, it) },
-                    onContribute = { amount ->
-                        viewModel.contributeToAnimal(selectedAnimal.id, amount, selectedAnimal.name)
+                    onBack = { viewModel.closeAnimalDetail() },
+                    onToggleFavorite = { viewModel.toggleAnimalFavorite(selectedAnimal.id, !selectedAnimal.isFavorite) },
+                    onAdoptClick = {
+                        viewModel.openDonation(
+                            targetId = selectedAnimal.id,
+                            targetName = selectedAnimal.name,
+                            targetType = "ANIMAL",
+                            isAdoption = true,
+                            amount = 2000,
+                            category = "Monthly Adoption"
+                        )
+                    },
+                    onDonateClick = { amount ->
+                        viewModel.openDonation(
+                            targetId = selectedAnimal.id,
+                            targetName = selectedAnimal.name,
+                            targetType = "ANIMAL",
+                            isAdoption = false,
+                            amount = amount,
+                            category = "Fodder & Healthcare"
+                        )
                     }
                 )
             }
@@ -114,12 +150,43 @@ fun MainScreen(
             selectedGaushala != null -> {
                 PlatformBackHandler { viewModel.closeGaushalaDetail() }
                 GaushalaDetailScreen(
+                    gaushalaId = selectedGaushala.id,
                     gaushala = selectedGaushala,
-                    residents = allAnimals.filter { it.gaushalaId == selectedGaushala.id }.ifEmpty { allAnimals.take(3) },
-                    onBackClick = { viewModel.closeGaushalaDetail() },
+                    animals = allAnimals.filter { it.gaushalaId == selectedGaushala.id }.ifEmpty { allAnimals.take(3) },
+                    welfareUpdates = welfareUpdates,
+                    onBack = { viewModel.closeGaushalaDetail() },
                     onAnimalClick = { animalId -> viewModel.openAnimalDetail(animalId) },
-                    onContribute = { amount, category ->
-                        viewModel.contributeToGaushala(selectedGaushala.id, amount, selectedGaushala.name, category)
+                    onSupportClick = {
+                        viewModel.openDonation(
+                            targetId = selectedGaushala.id,
+                            targetName = selectedGaushala.name,
+                            targetType = "GAUSHALA",
+                            isAdoption = false,
+                            amount = 500,
+                            category = "General Care"
+                        )
+                    },
+                    onAnimalSupportClick = { animal -> viewModel.openAnimalDetail(animal.id) },
+                    onViewAllAnimals = { viewModel.openAnimalDiscovery() }
+                )
+            }
+
+            showAnimalDiscovery -> {
+                PlatformBackHandler { viewModel.closeAnimalDiscovery() }
+                AnimalDiscoveryScreen(
+                    animals = allAnimals,
+                    isLoading = isCatalogLoading,
+                    onBack = { viewModel.closeAnimalDiscovery() },
+                    onAnimalClick = { animalId -> viewModel.openAnimalDetail(animalId) },
+                    onSupportClick = { animal ->
+                        viewModel.openDonation(
+                            targetId = animal.id,
+                            targetName = animal.name,
+                            targetType = "ANIMAL",
+                            isAdoption = false,
+                            amount = 500,
+                            category = "Fodder & Healthcare"
+                        )
                     }
                 )
             }
@@ -138,7 +205,10 @@ fun MainScreen(
                     bottomBar = {
                         SattvaBottomNav(
                             selectedTab = currentTab,
-                            onTabSelected = { tab -> viewModel.selectTab(tab) }
+                            onTabSelected = { tab ->
+                                viewModel.closeAnimalDiscovery()
+                                viewModel.selectTab(tab)
+                            }
                         )
                     },
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
@@ -191,10 +261,18 @@ fun MainScreen(
                                     GaushalaDiscoveryScreen(
                                         gaushalas = allGaushalas,
                                         isLoading = isCatalogLoading,
-                                        viewMode = gaushalaViewMode,
-                                        onViewModeChange = { viewModel.setGaushalaViewMode(it) },
                                         onGaushalaClick = { gaushalaId -> viewModel.openGaushalaDetail(gaushalaId) },
-                                        onSupportGaushala = { gaushala -> viewModel.openGaushalaDetail(gaushala.id) }
+                                        onSupportGaushala = { gaushala ->
+                                            viewModel.openDonation(
+                                                targetId = gaushala.id,
+                                                targetName = gaushala.name,
+                                                targetType = "GAUSHALA",
+                                                isAdoption = false,
+                                                amount = 500,
+                                                category = "General Care"
+                                            )
+                                        },
+                                        onExploreAnimalsClick = { viewModel.openAnimalDiscovery() }
                                     )
                                 }
 
@@ -228,6 +306,7 @@ fun MainScreen(
                                         onSignInAsDevotee = { name, cb ->
                                             viewModel.signInAsDevotee(name, cb)
                                         },
+                                        onGoogleSignIn = onGoogleSignIn,
                                         onSignOut = {
                                             viewModel.signOut()
                                         }

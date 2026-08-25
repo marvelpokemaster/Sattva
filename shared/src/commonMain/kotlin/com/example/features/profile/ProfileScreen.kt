@@ -50,6 +50,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -92,6 +93,7 @@ fun ProfileScreen(
     onSignInWithEmail: (String, String, (Boolean, String?) -> Unit) -> Unit = { _, _, _ -> },
     onSignUpWithEmail: (String, String, String, (Boolean, String?) -> Unit) -> Unit = { _, _, _, _ -> },
     onSignInAsDevotee: (String, (Boolean, String?) -> Unit) -> Unit = { _, _ -> },
+    onGoogleSignIn: (() -> Unit)? = null,
     onSignOut: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -143,7 +145,7 @@ fun ProfileScreen(
                         .padding(3.dp)
                 ) {
                     ImageWithPlaceholder(
-                        model = userProfile?.avatarUrl ?: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+                        model = userProfile?.avatarUrl?.takeIf { it.isNotBlank() } ?: firebaseUser?.photoUrl,
                         contentDescription = "Profile Photo",
                         modifier = Modifier
                             .fillMaxSize()
@@ -632,6 +634,45 @@ fun ProfileScreen(
                         }
                     }
                 }
+
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "App Settings",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Theme Preference", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            
+                            val currentTheme by com.example.core.config.ThemeSettings.themePreference.collectAsState()
+                            
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                com.example.core.config.ThemePreference.values().forEach { theme ->
+                                    val isSelected = theme == currentTheme
+                                    androidx.compose.material3.FilterChip(
+                                        selected = isSelected,
+                                        onClick = { com.example.core.config.ThemeSettings.updateTheme(theme) },
+                                        label = { Text(theme.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                                        colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -805,6 +846,19 @@ fun ProfileScreen(
                                 fontSize = 12.sp,
                                 color = RitualClay
                             )
+                        }
+                    }
+
+                    if (onGoogleSignIn != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = {
+                                showAuthDialog = false
+                                onGoogleSignIn()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Sign in with Google", color = DeepMoss)
                         }
                     }
 

@@ -62,7 +62,8 @@ data class AnimalResident(
     val monthlyGoalRupees: Int,
     val raisedRupees: Int,
     val isUrgent: Boolean = false,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val breed: String = "Desi"
 ) {
     val fundedPercent: Int
         get() = if (monthlyGoalRupees > 0) ((raisedRupees.toDouble() / monthlyGoalRupees) * 100).toInt().coerceIn(0, 100) else 0
@@ -70,6 +71,19 @@ data class AnimalResident(
     val neededRupees: Int
         get() = (monthlyGoalRupees - raisedRupees).coerceAtLeast(0)
 }
+
+data class WelfareUpdate(
+    val id: String = "",
+    val gaushalaId: String = "",
+    val animalId: String? = null,
+    val dateStr: String = "",
+    val eventType: String = "General", // "Medical", "Feeding", "Rescue", "Shelter", "Milestone"
+    val title: String = "",
+    val description: String = "",
+    val outcome: String? = null,
+    val mediaUrl: String? = null,
+    val timestamp: Long = 0L
+)
 
 @Entity(tableName = "seva_contributions")
 data class SevaContribution(

@@ -27,6 +27,12 @@ private data class PujaResponse(
     val count: Int = 0
 )
 
+@Serializable
+private data class WelfareResponse(
+    val updates: List<FirestoreWelfareUpdate> = emptyList(),
+    val count: Int = 0
+)
+
 class KtorCatalogRepositoryImpl : CatalogRepository {
     private val client = KtorClient.httpClient
 
@@ -59,6 +65,24 @@ class KtorCatalogRepositoryImpl : CatalogRepository {
 
     override fun observeAnimals(gaushalaId: String?): Flow<List<FirestoreAnimal>> = flow {
         emit(getAnimals(gaushalaId).getOrDefault(emptyList()))
+    }
+
+    override suspend fun getWelfareUpdates(gaushalaId: String?, animalId: String?): Result<List<FirestoreWelfareUpdate>> {
+        return try {
+            val params = mutableListOf<String>()
+            if (gaushalaId != null) params.add("gaushalaId=$gaushalaId")
+            if (animalId != null) params.add("animalId=$animalId")
+            val queryStr = if (params.isNotEmpty()) "?${params.joinToString("&")}" else ""
+            val url = "${AppConfig.backendBaseUrl}/api/v1/catalog/welfare_updates$queryStr"
+            val response: WelfareResponse = client.get(url).body()
+            Result.success(response.updates)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override fun observeWelfareUpdates(gaushalaId: String?, animalId: String?): Flow<List<FirestoreWelfareUpdate>> = flow {
+        emit(getWelfareUpdates(gaushalaId, animalId).getOrDefault(emptyList()))
     }
 
     override suspend fun getPujas(): Result<List<FirestorePuja>> {

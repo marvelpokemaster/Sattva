@@ -1,466 +1,235 @@
 package com.example.features.gaushala
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Eco
-import androidx.compose.material.icons.filled.Healing
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Verified
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
-import com.example.data.model.AnimalResident
-import com.example.data.model.Gaushala
-import com.example.core.ui.components.TrustScoreBadge
+import com.example.core.ui.components.ImageWithPlaceholder
+import com.example.core.ui.components.GlassSurface
 import com.example.core.ui.theme.DeepMoss
-import com.example.core.ui.theme.MutedGold
 import com.example.core.ui.theme.RitualClay
 import com.example.core.ui.theme.SerifFontFamily
-import com.example.core.ui.theme.SurfaceContainerLow
 import com.example.core.ui.theme.SurfaceIvory
-import kotlinx.coroutines.launch
+import com.example.data.model.Gaushala
+import com.example.data.model.WelfareUpdate
+import com.example.data.model.AnimalResident
+import com.example.features.welfare.WelfareTimeline
+import com.example.features.animal.EditorialAnimalCard
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GaushalaDetailScreen(
-    gaushala: Gaushala,
-    residents: List<AnimalResident>,
-    onBackClick: () -> Unit,
+    gaushalaId: String,
+    gaushala: Gaushala?,
+    animals: List<AnimalResident>,
+    welfareUpdates: List<WelfareUpdate>,
+    onBack: () -> Unit,
+    onSupportClick: () -> Unit,
     onAnimalClick: (String) -> Unit,
-    onContribute: (Int, String) -> Unit,
+    onAnimalSupportClick: (AnimalResident) -> Unit,
+    onViewAllAnimals: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var showDonateSheet by remember { mutableStateOf(false) }
-    var selectedAmount by remember { mutableIntStateOf(1000) }
-    var customAmountText by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Fodder & Nutrition") }
+    if (gaushala == null) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = DeepMoss)
+        }
+        return
+    }
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(bottom = 96.dp)
+                .padding(bottom = 100.dp)
         ) {
-            // Hero Banner with Back Button
+            // Immersive Hero
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(260.dp)
+                    .height(340.dp)
             ) {
-                AsyncImage(
+                ImageWithPlaceholder(
                     model = gaushala.imageUrl,
                     contentDescription = gaushala.name,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
-                // Dark gradient
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color(0x66000000),
-                                    Color.Transparent,
-                                    Color(0x99000000)
-                                )
-                            )
-                        )
-                )
-
-                // Top Bar
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                
+                Box(modifier = Modifier.fillMaxWidth().height(100.dp).background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.6f), Color.Transparent))))
+                Box(modifier = Modifier.fillMaxWidth().height(150.dp).align(Alignment.BottomCenter).background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f)))))
+                
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.statusBarsPadding().padding(start = 8.dp).size(48.dp).align(Alignment.TopStart)
                 ) {
-                    IconButton(
-                        onClick = onBackClick,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color(0x88000000))
-                            .testTag("gaushala_back_btn")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-
-                    TrustScoreBadge(
-                        scorePercent = gaushala.trustScorePercent,
-                        tier = gaushala.transparencyTier
-                    )
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
-
-                // Location Tag
-                Box(
+                
+                Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(20.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(DeepMoss.copy(alpha = 0.9f))
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Text(
-                            text = "${gaushala.location}, ${gaushala.state}",
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Verified, contentDescription = null, tint = Color(0xFFFFD54F), modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(gaushala.transparencyTier, color = Color(0xFFFFD54F), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = gaushala.name,
+                        fontFamily = SerifFontFamily,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        lineHeight = 36.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("${gaushala.location}, ${gaushala.state}", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
                     }
                 }
             }
-
-            // Main Details Body
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-            ) {
-                Text(
-                    text = gaushala.name,
-                    fontFamily = SerifFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 26.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Mission Quote Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceIvory)
+            
+            // Content
+            Column {
+                // Trust & Impact Strip
+                Row(
+                    modifier = Modifier.fillMaxWidth().background(SurfaceIvory).padding(vertical = 20.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "SANCTUARY MISSION",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = DeepMoss,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = "“${gaushala.missionQuote}”",
-                            fontFamily = SerifFontFamily,
-                            fontSize = 15.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            lineHeight = 22.sp
-                        )
+                    ImpactStat("${gaushala.animalsRescuedCount}+", "Rescued")
+                    ImpactStat("${gaushala.trustScorePercent}%", "Trust Score")
+                    ImpactStat("${gaushala.updatesCount}", "Weekly Updates")
+                }
+                
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text("Our Mission", style = MaterialTheme.typography.titleMedium, color = DeepMoss, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = gaushala.missionQuote,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        lineHeight = 22.sp
+                    )
+                    
+                    Spacer(modifier = Modifier.height(28.dp))
+                    
+                    // Care Allocation
+                    Text("Fund Allocation", style = MaterialTheme.typography.titleMedium, color = DeepMoss, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CareAllocationBar(gaushala.fodderPercent, gaushala.medicalPercent, gaushala.shelterPercent)
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    // Virtual Visit / Live Stream
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceIvory),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF4CAF50)))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Virtual Darshan & Live Feeds", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DeepMoss)
+                                }
+                                Text("Live Stream Ready", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = RitualClay)
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Sanctuary feeding area & grazing pasture cameras stream daily during morning Gau Pooja (7:00 AM - 8:30 AM IST) and evening Sandhya (5:30 PM - 7:00 PM IST).",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                lineHeight = 18.sp
+                            )
+                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Current Needs Section
-                Text(
-                    text = "Current Monthly Needs",
-                    fontFamily = SerifFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                NeedProgressItem(
-                    icon = Icons.Default.Eco,
-                    title = "Fodder & Nutrition",
-                    fundedPercent = gaushala.fodderPercent,
-                    targetStr = "Goal: ₹45,000 / mo"
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                NeedProgressItem(
-                    icon = Icons.Default.Healing,
-                    title = "Medical & Veterinary Care",
-                    fundedPercent = gaushala.medicalPercent,
-                    targetStr = "Goal: ₹20,000 / mo"
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                NeedProgressItem(
-                    icon = Icons.Default.Home,
-                    title = "Shelter & Water Facilities",
-                    fundedPercent = gaushala.shelterPercent,
-                    targetStr = "Goal: ₹35,000 / mo"
-                )
-
-                Spacer(modifier = Modifier.height(28.dp))
-
-                // Meet our Residents
-                Text(
-                    text = "Meet our Residents",
-                    fontFamily = SerifFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Each animal has a unique journey of recovery and love.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    contentPadding = PaddingValues(end = 12.dp)
-                ) {
-                    items(residents, key = { it.id }) { resident ->
-                        ResidentMiniCard(
-                            animal = resident,
-                            onClick = { onAnimalClick(resident.id) }
-                        )
+                
+                // Meet the Animals Carousel
+                if (animals.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Meet the Animals", style = MaterialTheme.typography.titleMedium, color = DeepMoss, fontWeight = FontWeight.Bold)
+                        TextButton(onClick = onViewAllAnimals) {
+                            Text("See all (${animals.size})", color = RitualClay, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(animals) { animal ->
+                            EditorialAnimalCard(animal, onAnimalClick, onAnimalSupportClick, modifier = Modifier.width(280.dp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(28.dp))
                 }
+                
+                // Welfare Timeline
+                Text("Care & Welfare Timeline", style = MaterialTheme.typography.titleMedium, color = DeepMoss, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 20.dp, bottom = 16.dp))
+                WelfareTimeline(welfareUpdates)
             }
         }
-
-        // Sticky Bottom Support Bar
+        
+        // Bottom Support Bar
         Surface(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .navigationBarsPadding(),
-            color = SurfaceIvory,
-            shadowElevation = 16.dp
+            modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
+            shadowElevation = 8.dp,
+            color = MaterialTheme.colorScheme.surface
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    Text(
-                        text = "Verified Sanctuary",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "${gaushala.animalsRescuedCount}+ Protected",
-                        fontFamily = SerifFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = DeepMoss
-                    )
-                }
-
+                Text("Help sustain this sanctuary", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                 Button(
-                    onClick = { showDonateSheet = true },
-                    shape = RoundedCornerShape(24.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DeepMoss,
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier
-                        .height(52.dp)
-                        .padding(start = 16.dp)
-                        .weight(1f)
-                        .testTag("provide_seva_btn")
+                    onClick = onSupportClick,
+                    colors = ButtonDefaults.buttonColors(containerColor = DeepMoss),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(
-                        text = "Provide Seva Support",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 15.sp
-                    )
-                }
-            }
-        }
-
-        // Seva Donation Sheet
-        if (showDonateSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showDonateSheet = false },
-                sheetState = sheetState,
-                containerColor = SurfaceIvory
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 8.dp)
-                        .verticalScroll(rememberScrollState())
-                        .navigationBarsPadding()
-                ) {
-                    Text(
-                        text = "Offer Seva to ${gaushala.name}",
-                        fontFamily = SerifFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "100% of your contribution directly funds pure fodder, fresh water, and life-saving veterinary care.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Text(
-                        text = "Select Contribution Amount",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        listOf(500, 1000, 2500).forEach { amount ->
-                            val isSelected = selectedAmount == amount && customAmountText.isEmpty()
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(14.dp))
-                                    .background(if (isSelected) DeepMoss else SurfaceContainerLow)
-                                    .clickable {
-                                        selectedAmount = amount
-                                        customAmountText = ""
-                                    }
-                                    .padding(vertical = 12.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "₹$amount",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    OutlinedTextField(
-                        value = customAmountText,
-                        onValueChange = {
-                            customAmountText = it
-                            it.toIntOrNull()?.let { num -> selectedAmount = num }
-                        },
-                        label = { Text("Or Enter Custom Amount (₹)") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Button(
-                        onClick = {
-                            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                                showDonateSheet = false
-                                onContribute(selectedAmount, selectedCategory)
-                            }
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = DeepMoss,
-                            contentColor = Color.White
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(54.dp)
-                            .testTag("confirm_seva_donation_btn")
-                    ) {
-                        Text(
-                            text = "Offer Seva of ₹$selectedAmount",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Text("Support Seva", fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -468,96 +237,36 @@ fun GaushalaDetailScreen(
 }
 
 @Composable
-private fun NeedProgressItem(
-    icon: ImageVector,
-    title: String,
-    fundedPercent: Int,
-    targetStr: String
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceIvory)
-    ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(imageVector = icon, contentDescription = null, tint = DeepMoss, modifier = Modifier.size(18.dp))
-                    Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                }
-                Text(text = "$fundedPercent% Funded", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = DeepMoss)
-            }
+fun ImpactStat(value: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, fontFamily = SerifFontFamily, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = DeepMoss)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+    }
+}
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LinearProgressIndicator(
-                progress = { fundedPercent / 100f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp)),
-                color = DeepMoss,
-                trackColor = DeepMoss.copy(alpha = 0.15f),
-                strokeCap = StrokeCap.Round
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(text = targetStr, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
+@Composable
+fun CareAllocationBar(fodder: Int, medical: Int, shelter: Int) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth().height(12.dp).clip(RoundedCornerShape(6.dp))) {
+            Box(modifier = Modifier.weight(fodder.toFloat()).fillMaxHeight().background(DeepMoss))
+            Box(modifier = Modifier.weight(medical.toFloat()).fillMaxHeight().background(RitualClay))
+            Box(modifier = Modifier.weight(shelter.toFloat()).fillMaxHeight().background(Color(0xFFE0E0E0)))
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            LegendItem("Fodder $fodder%", DeepMoss)
+            LegendItem("Medical $medical%", RitualClay)
+            LegendItem("Shelter $shelter%", Color(0xFFE0E0E0))
         }
     }
 }
 
 @Composable
-private fun ResidentMiniCard(
-    animal: AnimalResident,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .width(180.dp)
-            .clickable { onClick() }
-            .testTag("resident_card_${animal.id}"),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceIvory),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(110.dp)
-            ) {
-                AsyncImage(
-                    model = animal.imageUrl,
-                    contentDescription = animal.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-
-            Column(modifier = Modifier.padding(10.dp)) {
-                Text(
-                    text = animal.name,
-                    fontFamily = SerifFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = animal.ageStr,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 11.sp
-                )
-            }
-        }
+fun LegendItem(label: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

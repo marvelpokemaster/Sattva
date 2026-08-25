@@ -10,6 +10,7 @@ import com.example.data.model.ChatMessage
 import com.example.data.model.DailyWisdom
 import com.example.data.model.FamilyMember
 import com.example.data.model.Gaushala
+import com.example.data.model.WelfareUpdate
 import com.example.data.model.PanchangInfo
 import com.example.data.model.Puja
 import com.example.data.model.SevaContribution
@@ -34,6 +35,15 @@ enum class MainTab {
     VEDIC_AI,
     PROFILE
 }
+
+data class DonationTarget(
+    val targetId: String,
+    val targetName: String,
+    val targetType: String, // "GAUSHALA" or "ANIMAL"
+    val isAdoption: Boolean = false,
+    val initialAmount: Int = 500,
+    val initialCategory: String = "General Care"
+)
 
 class SattvaViewModel : ViewModel() {
 
@@ -91,6 +101,18 @@ class SattvaViewModel : ViewModel() {
     // Success Notification Dialog / Toast
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
+
+    // Welfare updates state
+    private val _welfareUpdates = MutableStateFlow<List<WelfareUpdate>>(emptyList())
+    val welfareUpdates: StateFlow<List<WelfareUpdate>> = _welfareUpdates.asStateFlow()
+
+    // Animal Discovery navigation state
+    private val _showAnimalDiscovery = MutableStateFlow(false)
+    val showAnimalDiscovery: StateFlow<Boolean> = _showAnimalDiscovery.asStateFlow()
+
+    // Donation Flow state
+    private val _donationTarget = MutableStateFlow<DonationTarget?>(null)
+    val donationTarget: StateFlow<DonationTarget?> = _donationTarget.asStateFlow()
 
     // Catalog loading state — true until first non-empty data arrives or 4s timeout
     private val _isCatalogLoading = MutableStateFlow(true)
@@ -175,6 +197,12 @@ class SattvaViewModel : ViewModel() {
     fun openGaushalaDetail(gaushalaId: String) {
         _selectedGaushalaId.value = gaushalaId
         _selectedAnimalId.value = null
+        viewModelScope.launch {
+            repository.getWelfareUpdates(gaushalaId = gaushalaId)
+                .onSuccess { updates ->
+                    _welfareUpdates.value = updates
+                }
+        }
     }
 
     fun closeGaushalaDetail() {
@@ -183,10 +211,57 @@ class SattvaViewModel : ViewModel() {
 
     fun openAnimalDetail(animalId: String) {
         _selectedAnimalId.value = animalId
+        viewModelScope.launch {
+            repository.getWelfareUpdates(animalId = animalId)
+                .onSuccess { updates ->
+                    _welfareUpdates.value = updates
+                }
+        }
     }
 
     fun closeAnimalDetail() {
         _selectedAnimalId.value = null
+    }
+
+    fun openAnimalDiscovery() {
+        _showAnimalDiscovery.value = true
+    }
+
+    fun closeAnimalDiscovery() {
+        _showAnimalDiscovery.value = false
+    }
+
+    fun openDonation(targetId: String, targetName: String, targetType: String, isAdoption: Boolean = false, amount: Int = 500, category: String = "General Care") {
+        _donationTarget.value = DonationTarget(
+            targetId = targetId,
+            targetName = targetName,
+            targetType = targetType,
+            isAdoption = isAdoption,
+            initialAmount = amount,
+            initialCategory = category
+        )
+    }
+
+    fun closeDonation() {
+        _donationTarget.value = null
+    }
+
+    fun submitDonation(amount: Int, category: String) {
+        val target = _donationTarget.value ?: return
+        viewModelScope.launch {
+            if (target.targetType == "ANIMAL") {
+                repository.contributeToAnimal(target.targetId, amount, target.targetName, category)
+                _toastMessage.value = if (target.isAdoption) {
+                    "Dhanyawad! Monthly adoption of ₹$amount active for ${target.targetName}."
+                } else {
+                    "Dhanyawad! ₹$amount contributed for ${target.targetName}'s seva."
+                }
+            } else {
+                repository.contributeToGaushala(target.targetId, amount, target.targetName, category)
+                _toastMessage.value = "Dhanyawad! ₹$amount contributed to ${target.targetName}."
+            }
+            closeDonation()
+        }
     }
 
     fun setSearchQuery(query: String) {
@@ -288,6 +363,17 @@ class SattvaViewModel : ViewModel() {
     }
 
     // Firebase Auth actions
+    fun signInWithGoogleToken(idToken: String, onComplete: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            authRepo.signInWithGoogle(idToken).onSuccess {
+                _toastMessage.value = "Welcome back, ${it.displayName ?: "Devotee"}!"
+                onComplete(true, null)
+            }.onFailure {
+                onComplete(false, it.message)
+            }
+        }
+    }
+
     fun signInWithEmail(email: String, pass: String, onComplete: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
             authRepo.signInWithEmail(email, pass).onSuccess {

@@ -1,6 +1,6 @@
 package com.example.features.home
 import com.example.features.puja.PujaItemCard
-import com.example.features.gaushala.GaushalaCard
+import com.example.features.gaushala.EditorialGaushalaCard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -249,7 +249,7 @@ fun ExploreScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 6.dp)
             ) {
-                GaushalaCard(
+                EditorialGaushalaCard(
                     gaushala = gaushala,
                     onClick = { onGaushalaClick(gaushala.id) },
                     onSupport = { onGaushalaClick(gaushala.id) }

@@ -189,6 +189,7 @@ data class FirestoreAnimal(
     val gaushalaId: String = "",
     val name: String = "",
     val ageStr: String = "",
+    val breed: String = "Desi",
     val healthStatus: String = "Healthy",
     val healthDescription: String = "",
     val imageUrl: String = "",
@@ -204,6 +205,7 @@ data class FirestoreAnimal(
             gaushalaId = gaushalaId,
             name = name,
             ageStr = ageStr,
+            breed = breed,
             healthStatus = healthStatus,
             healthDescription = healthDescription,
             imageUrl = imageUrl,
@@ -212,6 +214,38 @@ data class FirestoreAnimal(
             raisedRupees = raisedRupees,
             isUrgent = isUrgent,
             isFavorite = isFavorite
+        )
+    }
+}
+
+/**
+ * Firestore DTO for `welfare_updates/{updateId}`
+ */
+@Serializable
+data class FirestoreWelfareUpdate(
+    val id: String = "",
+    val gaushalaId: String = "",
+    val animalId: String? = null,
+    val dateStr: String = "",
+    val eventType: String = "General",
+    val title: String = "",
+    val description: String = "",
+    val outcome: String? = null,
+    val mediaUrl: String? = null,
+    val timestamp: Long = 0L
+) {
+    fun toWelfareUpdate(): com.example.data.model.WelfareUpdate {
+        return com.example.data.model.WelfareUpdate(
+            id = id,
+            gaushalaId = gaushalaId,
+            animalId = animalId,
+            dateStr = dateStr,
+            eventType = eventType,
+            title = title,
+            description = description,
+            outcome = outcome,
+            mediaUrl = mediaUrl,
+            timestamp = timestamp
         )
     }
 }
