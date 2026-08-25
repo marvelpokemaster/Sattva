@@ -47,6 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.data.model.Gaushala
+import com.example.core.ui.components.CardSkeleton
+import com.example.core.ui.components.EmptyState
+import com.example.core.ui.components.ImageWithPlaceholder
 import com.example.core.ui.components.TrustScoreBadge
 import com.example.core.ui.theme.DeepMoss
 import com.example.core.ui.theme.MutedGold
@@ -59,6 +62,7 @@ import com.example.core.ui.theme.SurfaceIvory
 fun GaushalaDiscoveryScreen(
     gaushalas: List<Gaushala>,
     viewMode: String,
+    isLoading: Boolean = false,
     onViewModeChange: (String) -> Unit,
     onGaushalaClick: (String) -> Unit,
     onSupportGaushala: (Gaushala) -> Unit,
@@ -171,17 +175,38 @@ fun GaushalaDiscoveryScreen(
         }
 
         // Gaushala Items List
-        items(gaushalas, key = { it.id }) { gaushala ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
-            ) {
-                GaushalaCard(
-                    gaushala = gaushala,
-                    onClick = { onGaushalaClick(gaushala.id) },
-                    onSupport = { onSupportGaushala(gaushala) }
+        // Gaushala Items List — skeleton while loading, empty state when confirmed empty
+        if (gaushalas.isEmpty() && isLoading) {
+            items(2) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    CardSkeleton(imageHeight = 180.dp)
+                }
+            }
+        } else if (gaushalas.isEmpty() && !isLoading) {
+            item {
+                EmptyState(
+                    title = "No Gaushalas Found",
+                    subtitle = "Verified sanctuaries will appear here once data is loaded.",
+                    icon = androidx.compose.material.icons.Icons.Default.Pets
                 )
+            }
+        } else {
+            items(gaushalas, key = { it.id }) { gaushala ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    GaushalaCard(
+                        gaushala = gaushala,
+                        onClick = { onGaushalaClick(gaushala.id) },
+                        onSupport = { onSupportGaushala(gaushala) }
+                    )
+                }
             }
         }
     }
@@ -274,7 +299,7 @@ fun GaushalaCard(
                     .fillMaxWidth()
                     .height(180.dp)
             ) {
-                AsyncImage(
+                ImageWithPlaceholder(
                     model = gaushala.imageUrl,
                     contentDescription = gaushala.name,
                     modifier = Modifier.fillMaxSize(),

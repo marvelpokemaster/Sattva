@@ -72,6 +72,7 @@ import com.example.data.model.Puja
 import com.example.data.model.SevaContribution
 import com.example.data.model.UserProfile
 import com.example.data.model.AuthUser
+import com.example.core.ui.components.ImageWithPlaceholder
 import com.example.core.ui.theme.DeepMoss
 import com.example.core.ui.theme.MutedGold
 import com.example.core.ui.theme.RitualClay
@@ -141,13 +142,14 @@ fun ProfileScreen(
                         )
                         .padding(3.dp)
                 ) {
-                    AsyncImage(
+                    ImageWithPlaceholder(
                         model = userProfile?.avatarUrl ?: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
                         contentDescription = "Profile Photo",
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        placeholderCornerRadius = 50.dp
                     )
                 }
 

@@ -58,7 +58,10 @@ import com.example.data.model.DailyWisdom
 import com.example.data.model.PanchangInfo
 import com.example.data.model.Puja
 import com.example.data.model.UserProfile
+import com.example.core.ui.components.CardSkeleton
+import com.example.core.ui.components.HorizontalCardSkeletonRow
 import com.example.core.ui.components.ImpactSummaryCard
+import com.example.core.ui.components.ImageWithPlaceholder
 import com.example.core.ui.components.PanchangCard
 import com.example.core.ui.components.WisdomQuoteCard
 import com.example.core.ui.theme.DeepMoss
@@ -75,6 +78,7 @@ fun HomeScreen(
     animalsNeedingSeva: List<AnimalResident>,
     todayPanchang: PanchangInfo,
     todayWisdom: DailyWisdom,
+    isLoading: Boolean = false,
     onPujaClick: (String) -> Unit,
     onAnimalClick: (String) -> Unit,
     onViewAllPujas: () -> Unit,
@@ -151,12 +155,18 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                featuredPuja?.let { puja ->
-                    FeaturedPujaCard(
-                        puja = puja,
-                        onClick = { onPujaClick(puja.id) },
-                        onBookSankalpa = { onPujaClick(puja.id) }
-                    )
+                when {
+                    featuredPuja != null -> {
+                        FeaturedPujaCard(
+                            puja = featuredPuja,
+                            onClick = { onPujaClick(featuredPuja.id) },
+                            onBookSankalpa = { onPujaClick(featuredPuja.id) }
+                        )
+                    }
+                    isLoading -> {
+                        CardSkeleton(imageHeight = 200.dp)
+                    }
+                    // else: confirmed no featured puja — section header already visible, nothing to show below
                 }
             }
         }
@@ -198,16 +208,20 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(animalsNeedingSeva, key = { it.id }) { animal ->
-                        AnimalSevaCard(
-                            animal = animal,
-                            onClick = { onAnimalClick(animal.id) },
-                            onSupport = { onSupportAnimal(animal) }
-                        )
+                if (animalsNeedingSeva.isEmpty() && isLoading) {
+                    HorizontalCardSkeletonRow(cardWidth = 260.dp, imageHeight = 150.dp)
+                } else {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(animalsNeedingSeva, key = { it.id }) { animal ->
+                            AnimalSevaCard(
+                                animal = animal,
+                                onClick = { onAnimalClick(animal.id) },
+                                onSupport = { onSupportAnimal(animal) }
+                            )
+                        }
                     }
                 }
             }
@@ -269,7 +283,7 @@ fun FeaturedPujaCard(
                     .fillMaxWidth()
                     .height(200.dp)
             ) {
-                AsyncImage(
+                ImageWithPlaceholder(
                     model = puja.imageUrl,
                     contentDescription = puja.title,
                     modifier = Modifier.fillMaxSize(),
@@ -431,7 +445,7 @@ fun AnimalSevaCard(
                     .fillMaxWidth()
                     .height(150.dp)
             ) {
-                AsyncImage(
+                ImageWithPlaceholder(
                     model = animal.imageUrl,
                     contentDescription = animal.name,
                     modifier = Modifier.fillMaxSize(),

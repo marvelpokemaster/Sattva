@@ -60,6 +60,7 @@ fun MainScreen(
     val generatedSankalpa by viewModel.generatedSankalpa.collectAsState()
     val isGeneratingSankalpa by viewModel.isGeneratingSankalpa.collectAsState()
     val toastMessage by viewModel.toastMessage.collectAsState()
+    val isCatalogLoading by viewModel.isCatalogLoading.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -160,6 +161,7 @@ fun MainScreen(
                                         animalsNeedingSeva = if (urgentAnimals.isNotEmpty()) urgentAnimals else allAnimals,
                                         todayPanchang = viewModel.todayPanchang,
                                         todayWisdom = viewModel.todayWisdom,
+                                        isLoading = isCatalogLoading,
                                         onPujaClick = { pujaId -> viewModel.openPujaDetail(pujaId) },
                                         onAnimalClick = { animalId -> viewModel.openAnimalDetail(animalId) },
                                         onViewAllPujas = { viewModel.selectTab(MainTab.EXPLORE) },
@@ -176,6 +178,7 @@ fun MainScreen(
                                 MainTab.EXPLORE -> {
                                     PujaDiscoveryScreen(
                                         pujas = allPujas,
+                                        isLoading = isCatalogLoading,
                                         selectedCategory = selectedPujaCategory,
                                         searchQuery = searchQuery,
                                         onCategorySelected = { viewModel.setPujaCategory(it) },
@@ -187,6 +190,7 @@ fun MainScreen(
                                 MainTab.SEVA -> {
                                     GaushalaDiscoveryScreen(
                                         gaushalas = allGaushalas,
+                                        isLoading = isCatalogLoading,
                                         viewMode = gaushalaViewMode,
                                         onViewModeChange = { viewModel.setGaushalaViewMode(it) },
                                         onGaushalaClick = { gaushalaId -> viewModel.openGaushalaDetail(gaushalaId) },

@@ -18,6 +18,7 @@ import com.example.data.model.UserProfile
 import com.example.di.AppDependencies
 import com.example.data.repository.SattvaRepository
 import com.example.data.model.AuthUser
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -91,6 +92,10 @@ class SattvaViewModel : ViewModel() {
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
+    // Catalog loading state — true until first non-empty data arrives or 4s timeout
+    private val _isCatalogLoading = MutableStateFlow(true)
+    val isCatalogLoading: StateFlow<Boolean> = _isCatalogLoading.asStateFlow()
+
     // Repository Flows
     val authUser: StateFlow<AuthUser?>
     val isUserSignedIn: StateFlow<Boolean>
@@ -127,6 +132,19 @@ class SattvaViewModel : ViewModel() {
 
         viewModelScope.launch {
             repository.seedInitialDataIfEmpty()
+        }
+
+        // Resolve loading state: flip to false when pujas arrive OR after 4s safety timeout
+        viewModelScope.launch {
+            delay(4000)
+            _isCatalogLoading.value = false
+        }
+        viewModelScope.launch {
+            allPujas.collect { pujas ->
+                if (pujas.isNotEmpty()) {
+                    _isCatalogLoading.value = false
+                }
+            }
         }
     }
 

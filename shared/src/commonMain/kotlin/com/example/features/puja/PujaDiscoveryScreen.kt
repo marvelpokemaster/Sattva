@@ -49,6 +49,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.data.model.Puja
+import com.example.core.ui.components.CardSkeleton
+import com.example.core.ui.components.EmptyState
+import com.example.core.ui.components.ImageWithPlaceholder
 import com.example.core.ui.theme.MutedGold
 import com.example.core.ui.theme.RitualClay
 import com.example.core.ui.theme.SerifFontFamily
@@ -60,6 +63,7 @@ fun PujaDiscoveryScreen(
     pujas: List<Puja>,
     selectedCategory: String,
     searchQuery: String,
+    isLoading: Boolean = false,
     onCategorySelected: (String) -> Unit,
     onSearchChanged: (String) -> Unit,
     onPujaClick: (String) -> Unit,
@@ -168,17 +172,37 @@ fun PujaDiscoveryScreen(
             }
         }
 
-        // Pujas List
-        items(filteredPujas, key = { it.id }) { puja ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
-            ) {
-                PujaItemCard(
-                    puja = puja,
-                    onClick = { onPujaClick(puja.id) }
+        // Pujas List — skeleton while loading, empty state when confirmed empty
+        if (filteredPujas.isEmpty() && isLoading) {
+            items(3) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    CardSkeleton(imageHeight = 160.dp)
+                }
+            }
+        } else if (filteredPujas.isEmpty() && !isLoading) {
+            item {
+                EmptyState(
+                    title = "No Pujas Found",
+                    subtitle = "Try a different category or search term.",
+                    icon = androidx.compose.material.icons.Icons.Default.Spa
                 )
+            }
+        } else {
+            items(filteredPujas, key = { it.id }) { puja ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 8.dp)
+                ) {
+                    PujaItemCard(
+                        puja = puja,
+                        onClick = { onPujaClick(puja.id) }
+                    )
+                }
             }
         }
     }
@@ -205,7 +229,7 @@ fun PujaItemCard(
                     .fillMaxWidth()
                     .height(160.dp)
             ) {
-                AsyncImage(
+                ImageWithPlaceholder(
                     model = puja.imageUrl,
                     contentDescription = puja.title,
                     modifier = Modifier.fillMaxSize(),
