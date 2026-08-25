@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1080658765469",
+    "project_id": "sattva-utsavam-dev",
+    "storage_bucket": "sattva-utsavam-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080658765469:android:9140e1ff699a199cdbd674",
+        "android_client_info": {
+          "package_name": "com.aistudio.sattva.spirit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnFrz9RyiojAuNfQRfYJRGQoDUEILjWBY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

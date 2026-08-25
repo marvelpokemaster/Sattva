@@ -1,6 +1,7 @@
 package com.example
 
 import android.os.Bundle
+import com.example.features.main.MainTab
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -27,22 +28,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ui.components.SattvaBottomNav
-import com.example.ui.components.SattvaTopBar
-import com.example.ui.screens.AnimalDetailScreen
-import com.example.ui.screens.ExploreScreen
-import com.example.ui.screens.GaushalaDetailScreen
-import com.example.ui.screens.GaushalaDiscoveryScreen
-import com.example.ui.screens.HomeScreen
-import com.example.ui.screens.OnboardingScreen
-import com.example.ui.screens.ProfileScreen
-import com.example.ui.screens.PujaDetailScreen
-import com.example.ui.screens.PujaDiscoveryScreen
-import com.example.ui.screens.SplashScreen
-import com.example.ui.screens.VedicAiScreen
-import com.example.ui.theme.SattvaTheme
-import com.example.ui.viewmodel.MainTab
-import com.example.ui.viewmodel.SattvaViewModel
+import com.example.core.ui.components.SattvaBottomNav
+import com.example.core.ui.components.SattvaTopBar
+import com.example.features.animal.AnimalDetailScreen
+import com.example.features.home.ExploreScreen
+import com.example.features.gaushala.GaushalaDetailScreen
+import com.example.features.gaushala.GaushalaDiscoveryScreen
+import com.example.features.home.HomeScreen
+import com.example.features.profile.OnboardingScreen
+import com.example.features.profile.ProfileScreen
+import com.example.features.puja.PujaDetailScreen
+import com.example.features.puja.PujaDiscoveryScreen
+import com.example.features.home.SplashScreen
+import com.example.features.ai.VedicAiScreen
+import com.example.core.ui.theme.SattvaTheme
+import com.example.features.main.SattvaViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

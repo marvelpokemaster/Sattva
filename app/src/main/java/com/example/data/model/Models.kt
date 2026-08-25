@@ -88,8 +88,8 @@ data class SevaContribution(
 
 @Entity(tableName = "user_profile")
 data class UserProfile(
-    @PrimaryKey val id: String = "primary_user",
-    val name: String = "Arjun Desai",
+    @PrimaryKey val id: String = "",
+    val name: String = "Devotee",
     val location: String = "Mumbai, India",
     val gotra: String = "Kashyapa",
     val nakshatra: String = "Rohini",

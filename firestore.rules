@@ -53,7 +53,7 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) &&
         // Protect privileged counter fields from direct manipulation if desired
-        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerifiedAdmin']));
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerifiedAdmin', 'totalContributed', 'pujaCount', 'paymentStatus']));
       allow delete: if false;
 
       // Family Members for Sankalpa

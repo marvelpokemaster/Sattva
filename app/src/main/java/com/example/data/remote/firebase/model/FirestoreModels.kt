@@ -42,7 +42,7 @@ data class FirestoreUser(
 ) {
     fun toUserProfile(): UserProfile {
         return UserProfile(
-            id = uid.ifEmpty { "primary_user" },
+            id = uid,
             name = displayName.ifEmpty { "Devotee" },
             location = city.ifEmpty { "Mumbai, India" },
             gotra = gotra.ifEmpty { "Kashyapa" },

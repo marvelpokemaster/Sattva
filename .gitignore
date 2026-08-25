@@ -16,3 +16,10 @@
 local.properties
 .env
 debug.keystore
+backend/.env
+node_modules/
+.antigravity/
+.vscode/
+*.zip
+backend/.venv/
+backend/__pycache__/

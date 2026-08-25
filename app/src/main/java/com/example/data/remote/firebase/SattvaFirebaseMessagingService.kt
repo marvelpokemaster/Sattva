@@ -1,4 +1,6 @@
 package com.example.data.remote.firebase
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.GlobalScope
 
 import android.app.PendingIntent
 import android.content.Context
@@ -19,7 +21,14 @@ class SattvaFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "New FCM Token received: $token")
-        // Ready for future integration: forward token to FastAPI backend when user is authenticated
+        
+        // Persist token in Firestore
+        kotlinx.coroutines.GlobalScope.launch {
+            val user = com.example.data.remote.firebase.FirebaseInitializer.authRepository.currentUser
+            if (user != null) {
+                com.example.data.remote.firebase.FirebaseInitializer.userRepository.updateFcmToken(user.uid, token)
+            }
+        }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
