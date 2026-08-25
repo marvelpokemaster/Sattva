@@ -10,10 +10,12 @@ import com.example.data.model.SevaContribution
 import com.example.data.model.UserProfile
 import kotlinx.datetime.Instant
 import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 
 /**
  * Firestore DTO for `users/{userId}` document
  */
+@Serializable
 data class FirestoreUser(
     val uid: String = "",
     val displayName: String = "",
@@ -55,6 +57,7 @@ data class FirestoreUser(
 /**
  * Firestore DTO for `users/{userId}/family_members/{memberId}`
  */
+@Serializable
 data class FirestoreFamilyMember(
     val id: String = "",
     val name: String = "",
@@ -76,6 +79,7 @@ data class FirestoreFamilyMember(
 /**
  * Firestore DTO for `users/{userId}/bookmarks/{targetId}`
  */
+@Serializable
 data class FirestoreBookmark(
     val targetId: String = "",
     val targetType: String = "PUJA", // "PUJA" or "ANIMAL" or "GAUSHALA"
@@ -85,6 +89,7 @@ data class FirestoreBookmark(
 /**
  * Firestore DTO for `pujas/{pujaId}`
  */
+@Serializable
 data class FirestorePuja(
     val id: String = "",
     val title: String = "",
@@ -134,6 +139,7 @@ data class FirestorePuja(
 /**
  * Firestore DTO for `gaushalas/{gaushalaId}`
  */
+@Serializable
 data class FirestoreGaushala(
     val id: String = "",
     val name: String = "",
@@ -177,6 +183,7 @@ data class FirestoreGaushala(
 /**
  * Firestore DTO for `animals/{animalId}`
  */
+@Serializable
 data class FirestoreAnimal(
     val id: String = "",
     val gaushalaId: String = "",
@@ -212,6 +219,7 @@ data class FirestoreAnimal(
 /**
  * Firestore DTO for `users/{userId}/puja_bookings/{bookingId}`
  */
+@Serializable
 data class FirestorePujaBooking(
     val bookingId: String = "",
     val pujaId: String = "",
@@ -236,6 +244,7 @@ data class FirestorePujaBooking(
 /**
  * Firestore DTO for `users/{userId}/seva_contributions/{contributionId}`
  */
+@Serializable
 data class FirestoreSevaContribution(
     val contributionId: String = "",
     val title: String = "",
@@ -265,6 +274,7 @@ data class FirestoreSevaContribution(
 /**
  * Firestore DTO for `content_daily/{dateKey}`
  */
+@Serializable
 data class FirestoreDailyContent(
     val dateKey: String = "",
     val tithi: String = "Shukla Paksha Dashami",

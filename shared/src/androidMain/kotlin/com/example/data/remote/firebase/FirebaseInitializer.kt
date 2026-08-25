@@ -44,8 +44,8 @@ object FirebaseInitializer {
         }
 
         val authImpl = FirebaseAuthRepositoryImpl()
-        val catalogImpl = FirestoreCatalogRepositoryImpl()
-        val userImpl = FirestoreUserRepositoryImpl()
+        val catalogImpl = com.example.data.remote.ktor.KtorCatalogRepositoryImpl()
+        val userImpl = com.example.data.remote.ktor.KtorUserRepositoryImpl(authImpl)
         val storageImpl = FirebaseStorageRepositoryImpl()
         val pushImpl = PushNotificationRepositoryImpl()
 

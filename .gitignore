@@ -9,7 +9,8 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+build/
+**/build/
 /captures
 .externalNativeBuild
 .cxx
@@ -17,9 +18,11 @@ local.properties
 .env
 debug.keystore
 backend/.env
-node_modules/
+.wrangler/
+**/node_modules/
 .antigravity/
 .vscode/
 *.zip
 backend/.venv/
 backend/__pycache__/
+

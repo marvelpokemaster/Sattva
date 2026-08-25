@@ -108,6 +108,15 @@ class FirebaseAuthRepositoryImpl(
         }
     }
 
+    override suspend fun getAuthToken(): String? {
+        return try {
+            auth.currentUser?.getIdToken(false)?.await()?.token
+        } catch (e: Exception) {
+            Log.e(TAG, "getAuthToken failed: ${e.message}")
+            null
+        }
+    }
+
     override suspend fun signOut() {
         try {
             auth.signOut()

@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-08-25",
   "vars": {
-    "FIREBASE_PROJECT_ID": "sattva-utsavam-dev"
+    "FIREBASE_PROJECT_ID": "sattva-utsavam-dev",
+    "FIREBASE_API_KEY": "AIzaSyCnFrz9RyiojAuNfQRfYJRGQoDUEILjWBY"
   }
 }
