@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Sattva"
 
-include(":app")
+include(":androidApp")
+include(":shared")
