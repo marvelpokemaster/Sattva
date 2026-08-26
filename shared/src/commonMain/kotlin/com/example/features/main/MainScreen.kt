@@ -277,6 +277,8 @@ fun MainScreen(
                                     GaushalaDiscoveryScreen(
                                         gaushalas = allGaushalas,
                                         isLoading = isCatalogLoading,
+                                        animals = allAnimals,
+                                        welfareUpdates = welfareUpdates,
                                         onGaushalaClick = { gaushalaId -> viewModel.openGaushalaDetail(gaushalaId) },
                                         onSupportGaushala = { gaushala ->
                                             viewModel.openDonation(
@@ -288,6 +290,8 @@ fun MainScreen(
                                                 category = "General Care"
                                             )
                                         },
+                                        onAnimalClick = { animalId -> viewModel.openAnimalDetail(animalId) },
+                                        onSupportAnimal = { animal -> viewModel.openAnimalDetail(animal.id) },
                                         onExploreAnimalsClick = { viewModel.openAnimalDiscovery() }
                                     )
                                 }

@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,18 +18,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.core.ui.components.ImageWithPlaceholder
-import com.example.core.ui.theme.DeepMoss
-import com.example.core.ui.theme.RitualClay
-import com.example.core.ui.theme.SerifFontFamily
-import com.example.core.ui.theme.SurfaceIvory
+import com.example.core.ui.components.*
+import com.example.core.ui.theme.*
 import com.example.data.model.AnimalResident
-
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,15 +57,20 @@ fun AnimalDiscoveryScreen(
         }
     }
 
-    val needsSupport = filteredAnimals.filter { it.neededRupees > 0 || it.isUrgent }
-    val nativeBreeds = filteredAnimals.filter { it.breed != "Desi" || it.story.contains("indigenous", ignoreCase = true) || it.story.contains("native", ignoreCase = true) }
-    
+    val urgentResidents = filteredAnimals.filter { it.isUrgent || it.neededRupees > 0 }
+
     LazyColumn(
-        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(bottom = 80.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(bottom = DesignTokens.Spacing.bottomNavClearance)
     ) {
         item {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = DesignTokens.Spacing.screenEdge, vertical = DesignTokens.Spacing.md)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DeepMoss)
@@ -83,16 +85,17 @@ fun AnimalDiscoveryScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.Spacing.sm))
 
                 // Search Bar
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search by name, breed, or story...") },
+                    placeholder = { Text("Search by name, breed, or story...", fontSize = 14.sp) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = DeepMoss) },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(DesignTokens.Radii.md),
+                    singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = SurfaceIvory,
                         unfocusedContainerColor = SurfaceIvory,
@@ -101,12 +104,12 @@ fun AnimalDiscoveryScreen(
                     )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(DesignTokens.Spacing.md))
 
                 // Filter Chips
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sm)
                 ) {
                     listOf("All", "Urgent", "Native Breeds", "Recovering").forEach { filter ->
                         val isSelected = selectedFilter == filter
@@ -115,7 +118,7 @@ fun AnimalDiscoveryScreen(
                             colors = CardDefaults.cardColors(
                                 containerColor = if (isSelected) DeepMoss else SurfaceIvory
                             ),
-                            shape = RoundedCornerShape(16.dp)
+                            shape = RoundedCornerShape(DesignTokens.Radii.pill)
                         ) {
                             Text(
                                 text = filter,
@@ -129,7 +132,7 @@ fun AnimalDiscoveryScreen(
                 }
             }
         }
-        
+
         if (isLoading) {
             item {
                 Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) {
@@ -138,63 +141,181 @@ fun AnimalDiscoveryScreen(
             }
         } else if (filteredAnimals.isEmpty()) {
             item {
-                Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) {
-                    Text("No animals found matching your search.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+                EmptyState(
+                    title = "No Residents Found",
+                    subtitle = "Try adjusting your search criteria.",
+                    icon = Icons.Default.Search
+                )
             }
         } else {
-            if (needsSupport.isNotEmpty() && selectedFilter == "All") {
+            if (filteredAnimals.size == 1) {
+                val singleAnimal = filteredAnimals.first()
                 item {
-                    SectionHeader("Needs Urgent Support")
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    SectionHeader(title = "Featured Resident")
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = DesignTokens.Spacing.screenEdge)
                     ) {
-                        items(needsSupport) { animal ->
-                            EditorialAnimalCard(animal, onAnimalClick, onSupportClick, modifier = Modifier.width(280.dp))
+                        FeaturedResidentCard(
+                            animal = singleAnimal,
+                            onClick = { onAnimalClick(singleAnimal.id) },
+                            onSupport = { onSupportClick(singleAnimal) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            } else {
+                // Urgent Carousel if filtering "All" and multiple urgent animals exist
+                if (urgentResidents.isNotEmpty() && selectedFilter == "All") {
+                    item {
+                        SectionHeader(title = "Needs Urgent Care")
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = DesignTokens.Spacing.screenEdge),
+                            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.md)
+                        ) {
+                            items(urgentResidents) { animal ->
+                                FeaturedResidentCard(
+                                    animal = animal,
+                                    onClick = { onAnimalClick(animal.id) },
+                                    onSupport = { onSupportClick(animal) },
+                                    modifier = Modifier.width(DesignTokens.Dimensions.carouselCardWidth)
+                                )
+                            }
                         }
                     }
                 }
-            }
-            
-            if (nativeBreeds.isNotEmpty() && selectedFilter == "All") {
+
                 item {
-                    SectionHeader("Native & Indigenous Breeds")
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(nativeBreeds) { animal ->
-                            EditorialAnimalCard(animal, onAnimalClick, onSupportClick, modifier = Modifier.width(280.dp))
-                        }
-                    }
+                    SectionHeader(title = "All Cattle Residents (${filteredAnimals.size})")
                 }
-            }
-            
-            item {
-                SectionHeader("All Residents (${filteredAnimals.size})")
-            }
-            
-            items(filteredAnimals) { animal ->
-                Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-                    EditorialAnimalCard(animal, onAnimalClick, onSupportClick, modifier = Modifier.fillMaxWidth())
+
+                items(filteredAnimals, key = { it.id }) { animal ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = DesignTokens.Spacing.screenEdge, vertical = DesignTokens.Spacing.xs)
+                    ) {
+                        CompactAnimalCard(
+                            animal = animal,
+                            onClick = { onAnimalClick(animal.id) },
+                            onSupport = { onSupportClick(animal) }
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+/**
+ * Featured Resident Card for urgent care carousel.
+ */
 @Composable
-private fun SectionHeader(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        color = DeepMoss,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 12.dp)
+fun FeaturedResidentCard(
+    animal: AnimalResident,
+    onClick: () -> Unit,
+    onSupport: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    StandardCard(
+        modifier = modifier,
+        onClick = onClick,
+        shape = RoundedCornerShape(DesignTokens.Radii.md),
+        elevation = DesignTokens.Elevation.subtle
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(DesignTokens.Dimensions.carouselImageHeight)
+        ) {
+            ImageWithPlaceholder(
+                model = animal.imageUrl,
+                contentDescription = animal.name,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
+            if (animal.isUrgent) {
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(DesignTokens.Radii.xs))
+                        .background(RitualClay)
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                        .align(Alignment.TopStart)
+                ) {
+                    Text("Urgent Care", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        Column(modifier = Modifier.padding(DesignTokens.Spacing.md)) {
+            Text(
+                text = animal.name,
+                fontFamily = SerifFontFamily,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = "${animal.breed} • ${animal.healthStatus}",
+                fontSize = 12.sp,
+                color = if (animal.healthStatus == "Healthy") DeepMoss else RitualClay,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(DesignTokens.Spacing.sm))
+
+            Button(
+                onClick = onSupport,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(36.dp),
+                shape = RoundedCornerShape(DesignTokens.Radii.sm),
+                colors = ButtonDefaults.buttonColors(containerColor = DeepMoss)
+            ) {
+                Text("Sponsor", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        }
+    }
+}
+
+/**
+ * Compact Animal Card: Horizontal list card with 90x90 thumbnail on left, metadata + Sponsor button on right.
+ */
+@Composable
+fun CompactAnimalCard(
+    animal: AnimalResident,
+    onClick: () -> Unit,
+    onSupport: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    CompactListCard(
+        imageUrl = animal.imageUrl,
+        title = animal.name,
+        subtitle = "${animal.breed} • ${animal.ageStr}",
+        badgeText = if (animal.isUrgent) "Urgent" else animal.healthStatus,
+        badgeColor = if (animal.healthStatus == "Healthy") DeepMoss else RitualClay,
+        metaText = "Support from ₹200",
+        actionText = "Sponsor",
+        onActionClick = onSupport,
+        onClick = onClick,
+        thumbnailSize = 90.dp,
+        modifier = modifier
     )
 }
 
+/**
+ * Editorial Animal Card alias for backward compatibility.
+ */
 @Composable
 fun EditorialAnimalCard(
     animal: AnimalResident,
@@ -202,73 +323,10 @@ fun EditorialAnimalCard(
     onSupport: (AnimalResident) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.clickable { onClick(animal.id) },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceIvory),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column {
-            Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
-                ImageWithPlaceholder(
-                    model = animal.imageUrl,
-                    contentDescription = animal.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                
-                if (animal.isUrgent) {
-                    Box(
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(RitualClay)
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text("Urgent Care", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-            
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(
-                        text = animal.name,
-                        fontFamily = SerifFontFamily,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = animal.healthStatus,
-                        fontSize = 12.sp,
-                        color = if (animal.healthStatus == "Healthy") DeepMoss else RitualClay,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = animal.story,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    lineHeight = 18.sp
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Button(
-                    onClick = { onSupport(animal) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = DeepMoss),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Sponsor Care", color = Color.White)
-                }
-            }
-        }
-    }
+    FeaturedResidentCard(
+        animal = animal,
+        onClick = { onClick(animal.id) },
+        onSupport = { onSupport(animal) },
+        modifier = modifier
+    )
 }

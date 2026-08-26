@@ -66,6 +66,7 @@ import com.example.core.ui.components.ImageWithPlaceholder
 import com.example.core.ui.components.PanchangCard
 import com.example.core.ui.components.WisdomQuoteCard
 import com.example.core.ui.theme.DeepMoss
+import com.example.core.ui.theme.DesignTokens
 import com.example.core.ui.theme.MutedGold
 import com.example.core.ui.theme.RitualClay
 import com.example.core.ui.theme.SerifFontFamily
@@ -96,7 +97,7 @@ fun HomeScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 100.dp)
+        contentPadding = PaddingValues(bottom = DesignTokens.Spacing.bottomNavClearance)
     ) {
         // Personalized Greeting & Vedic Instant Header
         item {
@@ -276,18 +277,18 @@ fun FeaturedPujaCard(
             .fillMaxWidth()
             .clickable { onClick() }
             .testTag("featured_puja_card"),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(DesignTokens.Radii.lg),
         colors = CardDefaults.cardColors(
             containerColor = SurfaceIvory
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.default)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Image Header with Badge Overlay
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(DesignTokens.Dimensions.featuredImageHeight)
             ) {
                 ImageWithPlaceholder(
                     model = puja.imageUrl,

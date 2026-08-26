@@ -189,6 +189,127 @@ fun ImageCard(
 }
 
 /**
+ * Standard Compact List Card with horizontal layout (thumbnail on left, metadata + compact CTA on right).
+ * Fits naturally in viewports so devotees can see multiple items at once.
+ */
+@Composable
+fun CompactListCard(
+    imageUrl: String,
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier,
+    thumbnailSize: Dp = DesignTokens.Dimensions.compactThumbnailSize,
+    badgeText: String? = null,
+    badgeColor: Color = DeepMoss,
+    metaText: String? = null,
+    actionText: String? = null,
+    onActionClick: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null
+) {
+    StandardCard(
+        modifier = modifier.fillMaxWidth(),
+        onClick = onClick,
+        shape = RoundedCornerShape(DesignTokens.Radii.md),
+        elevation = DesignTokens.Elevation.subtle
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(DesignTokens.Spacing.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(thumbnailSize)
+                    .clip(RoundedCornerShape(DesignTokens.Radii.md))
+            ) {
+                ImageWithPlaceholder(
+                    model = imageUrl,
+                    contentDescription = title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.width(DesignTokens.Spacing.md))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (!badgeText.isNullOrBlank()) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(DesignTokens.Radii.xs))
+                            .background(badgeColor.copy(alpha = 0.12f))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = badgeText,
+                            color = badgeColor,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+
+                Text(
+                    text = title,
+                    fontFamily = SerifFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (!metaText.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = metaText,
+                        fontSize = 11.sp,
+                        color = RitualClay,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            if (!actionText.isNullOrBlank() && onActionClick != null) {
+                Spacer(modifier = Modifier.width(DesignTokens.Spacing.sm))
+                Button(
+                    onClick = onActionClick,
+                    shape = RoundedCornerShape(DesignTokens.Radii.sm),
+                    colors = ButtonDefaults.buttonColors(containerColor = DeepMoss),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    Text(
+                        text = actionText,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * Standard Section Header with title and optional action button.
  */
 @Composable

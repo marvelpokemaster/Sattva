@@ -52,6 +52,7 @@ import com.example.data.model.Puja
 import com.example.core.ui.components.CardSkeleton
 import com.example.core.ui.components.EmptyState
 import com.example.core.ui.components.ImageWithPlaceholder
+import com.example.core.ui.theme.DesignTokens
 import com.example.core.ui.theme.MutedGold
 import com.example.core.ui.theme.RitualClay
 import com.example.core.ui.theme.SerifFontFamily
@@ -83,7 +84,7 @@ fun PujaDiscoveryScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 110.dp)
+        contentPadding = PaddingValues(bottom = DesignTokens.Spacing.bottomNavClearance)
     ) {
         // Header
         item {

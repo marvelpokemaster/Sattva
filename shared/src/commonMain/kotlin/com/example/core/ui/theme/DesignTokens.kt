@@ -13,7 +13,7 @@ object DesignTokens {
         val xxl: Dp = 24.dp
         val section: Dp = 32.dp
         val screenEdge: Dp = 20.dp
-        val bottomNavClearance: Dp = 110.dp
+        val bottomNavClearance: Dp = 120.dp
     }
 
     object Radii {
@@ -27,10 +27,13 @@ object DesignTokens {
     }
 
     object Dimensions {
-        val carouselCardWidth: Dp = 280.dp
-        val carouselImageHeight: Dp = 160.dp
-        val listImageHeight: Dp = 160.dp
-        val heroImageHeight: Dp = 200.dp
+        val carouselCardWidth: Dp = 260.dp
+        val carouselImageHeight: Dp = 140.dp
+        val featuredImageHeight: Dp = 160.dp
+        val compactImageHeight: Dp = 110.dp
+        val compactThumbnailSize: Dp = 100.dp
+        val listImageHeight: Dp = 140.dp
+        val heroImageHeight: Dp = 180.dp
         val detailHeroHeight: Dp = 360.dp
         val iconBadgeSize: Dp = 36.dp
         val avatarSmall: Dp = 40.dp
