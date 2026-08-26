@@ -20,6 +20,8 @@ import com.example.core.ui.components.SattvaBottomNav
 import com.example.core.ui.components.SattvaTopBar
 import com.example.features.animal.AnimalDetailScreen
 import com.example.features.animal.AnimalDiscoveryScreen
+import com.example.features.auth.AuthScreen
+import com.example.features.auth.SattvaAuthLoadingScreen
 import com.example.features.donation.DonationScreen
 import com.example.features.home.ExploreScreen
 import com.example.features.gaushala.GaushalaDetailScreen
@@ -41,13 +43,14 @@ fun MainScreen(
 
     val currentTab by viewModel.currentTab.collectAsState()
     val onboardingCompleted by viewModel.onboardingCompleted.collectAsState()
+    val isAuthChecking by viewModel.isAuthChecking.collectAsState()
+    val authUser by viewModel.authUser.collectAsState()
     val selectedPujaId by viewModel.selectedPujaId.collectAsState()
     val selectedGaushalaId by viewModel.selectedGaushalaId.collectAsState()
     val selectedAnimalId by viewModel.selectedAnimalId.collectAsState()
     val showAnimalDiscovery by viewModel.showAnimalDiscovery.collectAsState()
     val donationTarget by viewModel.donationTarget.collectAsState()
 
-    val authUser by viewModel.authUser.collectAsState()
     val allPujas by viewModel.allPujas.collectAsState()
     val allGaushalas by viewModel.allGaushalas.collectAsState()
     val allAnimals by viewModel.allAnimals.collectAsState()
@@ -79,6 +82,18 @@ fun MainScreen(
 
     if (showSplash) {
         SplashScreen(onSplashFinished = { showSplash = false })
+    } else if (isAuthChecking) {
+        SattvaAuthLoadingScreen()
+    } else if (authUser == null) {
+        AuthScreen(
+            onSignInWithEmail = { email, pass, cb ->
+                viewModel.signInWithEmail(email, pass, cb)
+            },
+            onSignUpWithEmail = { email, pass, name, cb ->
+                viewModel.signUpWithEmail(email, pass, name, cb)
+            },
+            onGoogleSignIn = onGoogleSignIn
+        )
     } else if (!onboardingCompleted) {
         OnboardingScreen(onFinish = { viewModel.completeOnboarding() })
     } else {
@@ -231,6 +246,7 @@ fun MainScreen(
                                         animalsNeedingSeva = if (urgentAnimals.isNotEmpty()) urgentAnimals else allAnimals,
                                         todayPanchang = viewModel.todayPanchang,
                                         todayWisdom = viewModel.todayWisdom,
+                                        contributions = sevaContributions,
                                         isLoading = isCatalogLoading,
                                         onPujaClick = { pujaId -> viewModel.openPujaDetail(pujaId) },
                                         onAnimalClick = { animalId -> viewModel.openAnimalDetail(animalId) },
@@ -302,9 +318,6 @@ fun MainScreen(
                                         },
                                         onSignUpWithEmail = { email, pass, name, cb ->
                                             viewModel.signUpWithEmail(email, pass, name, cb)
-                                        },
-                                        onSignInAsDevotee = { name, cb ->
-                                            viewModel.signInAsDevotee(name, cb)
                                         },
                                         onGoogleSignIn = onGoogleSignIn,
                                         onSignOut = {

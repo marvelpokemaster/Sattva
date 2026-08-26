@@ -21,6 +21,18 @@ private data class DonationsResponse(val donations: List<FirestoreSevaContributi
 @Serializable
 private data class DonationCreateResponse(val id: String, val status: String)
 
+@Serializable
+private data class BookingsResponse(val bookings: List<FirestorePujaBooking> = emptyList())
+
+@Serializable
+private data class BookingCreateResponse(val id: String, val status: String)
+
+@Serializable
+private data class FamilyResponse(val family: List<FirestoreFamilyMember> = emptyList())
+
+@Serializable
+private data class FamilyCreateResponse(val id: String)
+
 class KtorUserRepositoryImpl(private val authRepository: AuthRepository) : UserRepository {
     private val client = KtorClient.httpClient
 
@@ -89,14 +101,70 @@ class KtorUserRepositoryImpl(private val authRepository: AuthRepository) : UserR
         return saveOrUpdateUserProfile(uid = uid, fcmToken = token)
     }
 
-    // Unimplemented or local-only for now, as V1 focuses on Donations & Profile
-    override fun observeFamilyMembers(uid: String): Flow<List<FirestoreFamilyMember>> = flow { emit(emptyList()) }
-    override suspend fun addFamilyMember(uid: String, member: FamilyMember): Result<String> = Result.success("")
+    override fun observeFamilyMembers(uid: String): Flow<List<FirestoreFamilyMember>> = flow {
+        try {
+            val response: FamilyResponse = client.get("${AppConfig.backendBaseUrl}/api/v1/family") {
+                addAuthHeader()
+            }.body()
+            emit(response.family)
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun addFamilyMember(uid: String, member: FamilyMember): Result<String> {
+        return try {
+            val bodyMap = mapOf(
+                "name" to member.name,
+                "relation" to member.relation,
+                "gotra" to member.gotra,
+                "nakshatra" to member.nakshatra
+            )
+            val response: FamilyCreateResponse = client.post("${AppConfig.backendBaseUrl}/api/v1/family") {
+                addAuthHeader()
+                contentType(ContentType.Application.Json)
+                setBody(bodyMap)
+            }.body()
+            Result.success(response.id)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun removeFamilyMember(uid: String, memberId: String): Result<Unit> = Result.success(Unit)
     override fun observeBookmarks(uid: String): Flow<Set<String>> = flow { emit(emptySet()) }
     override suspend fun setBookmark(uid: String, targetId: String, targetType: String, isBookmarked: Boolean): Result<Unit> = Result.success(Unit)
-    override fun observePujaBookings(uid: String): Flow<List<FirestorePujaBooking>> = flow { emit(emptyList()) }
-    override suspend fun createPendingPujaBooking(uid: String, booking: FirestorePujaBooking): Result<String> = Result.success("")
+
+    override fun observePujaBookings(uid: String): Flow<List<FirestorePujaBooking>> = flow {
+        try {
+            val response: BookingsResponse = client.get("${AppConfig.backendBaseUrl}/api/v1/bookings") {
+                addAuthHeader()
+            }.body()
+            emit(response.bookings)
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override suspend fun createPendingPujaBooking(uid: String, booking: FirestorePujaBooking): Result<String> {
+        return try {
+            val bodyMap = mapOf(
+                "pujaId" to booking.pujaId,
+                "devoteeName" to booking.devoteeName,
+                "gotra" to booking.gotra,
+                "scheduledDateStr" to booking.scheduledDateStr,
+                "aiGeneratedSankalpa" to booking.aiGeneratedSankalpa
+            )
+            val response: BookingCreateResponse = client.post("${AppConfig.backendBaseUrl}/api/v1/bookings") {
+                addAuthHeader()
+                contentType(ContentType.Application.Json)
+                setBody(bodyMap)
+            }.body()
+            Result.success(response.id)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     override fun observeSevaContributions(uid: String): Flow<List<FirestoreSevaContribution>> = flow {
         try {
@@ -115,7 +183,7 @@ class KtorUserRepositoryImpl(private val authRepository: AuthRepository) : UserR
                 "targetType" to contribution.targetType,
                 "targetId" to contribution.targetId,
                 "targetName" to contribution.targetName,
-                "amountRupees" to contribution.amountRupees,
+                "amountRupees" to contribution.amountRupees.toString(),
                 "sevaCategory" to contribution.sevaCategory
             )
             val response: DonationCreateResponse = client.post("${AppConfig.backendBaseUrl}/api/v1/donations") {

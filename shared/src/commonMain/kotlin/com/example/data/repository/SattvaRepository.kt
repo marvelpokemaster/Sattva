@@ -80,17 +80,32 @@ class SattvaRepository(
                     // 1. Sync User Profile from Firestore to Room cache
                     userRepo.observeUserProfile(uid).collect { firestoreUser ->
                         if (firestoreUser != null) {
-                            userProfileDao.insertProfile(com.example.data.model.UserProfile(firestoreUser.uid, firestoreUser.displayName ?: "", firestoreUser.email ?: "", firestoreUser.avatarUrl ?: ""))
+                            userProfileDao.insertProfile(
+                                UserProfile(
+                                    id = firestoreUser.uid,
+                                    name = firestoreUser.displayName ?: authUser.displayName ?: authUser.email?.substringBefore("@") ?: "Devotee",
+                                    email = firestoreUser.email ?: authUser.email ?: "",
+                                    location = firestoreUser.city ?: "India",
+                                    gotra = firestoreUser.gotra ?: "Kashyapa",
+                                    nakshatra = firestoreUser.nakshatra ?: "Rohini",
+                                    rashi = firestoreUser.rashi ?: "Vrishabha",
+                                    avatarUrl = firestoreUser.avatarUrl ?: authUser.photoUrl ?: ""
+                                )
+                            )
                         } else {
                             // First time sign in: create initial profile in Firestore
+                            val initialName = authUser.displayName?.ifBlank { null }
+                                ?: authUser.email?.substringBefore("@")
+                                ?: "Devotee"
                             val initialProfile = UserProfile(
                                 id = uid,
-                                name = authUser.displayName ?: "Devotee",
-                                location = "Mumbai, India",
+                                name = initialName,
+                                email = authUser.email ?: "",
+                                location = "India",
                                 gotra = "Kashyapa",
                                 nakshatra = "Rohini",
-                                rashi = "Vrishabha (Taurus)",
-                                avatarUrl = authUser.photoUrl?.toString() ?: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200"
+                                rashi = "Vrishabha",
+                                avatarUrl = authUser.photoUrl ?: ""
                             )
                             userProfileDao.insertProfile(initialProfile)
                             userRepo.saveOrUpdateUserProfile(
@@ -101,6 +116,9 @@ class SattvaRepository(
                             )
                         }
                     }
+                } else {
+                    // User logged out: clear all user-scoped data
+                    clearUserData()
                 }
             }
         }
@@ -110,14 +128,10 @@ class SattvaRepository(
             authRepo.authState.collect { authUser ->
                 if (authUser != null) {
                     userRepo.observeFamilyMembers(authUser.uid).collect { members ->
-                        if (members.isNotEmpty()) {
-                            _syncedFamilyMembers.value = members.map { it.toFamilyMember() }
-                        } else {
-                            _syncedFamilyMembers.value = getDefaultFamilyMembers()
-                        }
+                        _syncedFamilyMembers.value = members.map { it.toFamilyMember() }
                     }
                 } else {
-                    _syncedFamilyMembers.value = getDefaultFamilyMembers()
+                    _syncedFamilyMembers.value = emptyList()
                 }
             }
         }
@@ -137,6 +151,16 @@ class SattvaRepository(
                     }
                 }
             }
+        }
+    }
+
+    suspend fun clearUserData() {
+        try {
+            userProfileDao.clearProfile()
+            sevaDao.clearContributions()
+            _syncedFamilyMembers.value = emptyList()
+        } catch (e: Exception) {
+            println("WARN $TAG: Error clearing local user data: ${e.message}")
         }
     }
 
@@ -339,18 +363,10 @@ class SattvaRepository(
     }
 
     fun getDefaultFamilyMembers(): List<FamilyMember> {
-        return listOf(
-            FamilyMember(name = "Priya Desai", relation = "Spouse", gotra = "Kashyapa Gotra"),
-            FamilyMember(name = "Rohan Desai", relation = "Son", gotra = "Kashyapa Gotra"),
-            FamilyMember(name = "Meera Desai", relation = "Daughter", gotra = "Kashyapa Gotra")
-        )
+        return emptyList()
     }
 
     suspend fun seedInitialDataIfEmpty() {
-        val existingProfile = userProfileDao.getUserProfile().firstOrNull()
-        if (existingProfile == null) {
-            userProfileDao.insertProfile(UserProfile())
-        }
         // Run sync from Firestore in background
         syncCatalogFromFirestore()
     }

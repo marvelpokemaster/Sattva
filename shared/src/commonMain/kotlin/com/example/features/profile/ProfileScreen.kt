@@ -92,7 +92,6 @@ fun ProfileScreen(
     onAddFamilyMember: (FamilyMember) -> Unit,
     onSignInWithEmail: (String, String, (Boolean, String?) -> Unit) -> Unit = { _, _, _ -> },
     onSignUpWithEmail: (String, String, String, (Boolean, String?) -> Unit) -> Unit = { _, _, _, _ -> },
-    onSignInAsDevotee: (String, (Boolean, String?) -> Unit) -> Unit = { _, _ -> },
     onGoogleSignIn: (() -> Unit)? = null,
     onSignOut: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -102,7 +101,6 @@ fun ProfileScreen(
 
     var showEditIdentityDialog by remember { mutableStateOf(false) }
     var showAddFamilyDialog by remember { mutableStateOf(false) }
-    var showAuthDialog by remember { mutableStateOf(false) }
 
     var editGotra by remember(userProfile) { mutableStateOf(userProfile?.gotra ?: "Kashyapa") }
     var editNakshatra by remember(userProfile) { mutableStateOf(userProfile?.nakshatra ?: "Rohini") }
@@ -112,13 +110,14 @@ fun ProfileScreen(
     var newMemberRelation by remember { mutableStateOf("Spouse") }
     var newMemberNakshatra by remember { mutableStateOf("Mrigashira") }
 
-    // Auth dialog state
-    var authIsSignUp by remember { mutableStateOf(false) }
-    var authEmail by remember { mutableStateOf("") }
-    var authPassword by remember { mutableStateOf("") }
-    var authDisplayName by remember { mutableStateOf("") }
-    var authError by remember { mutableStateOf<String?>(null) }
-    var authLoading by remember { mutableStateOf(false) }
+    val devoteeDisplayName = firebaseUser?.displayName?.takeIf { it.isNotBlank() }
+        ?: userProfile?.name?.takeIf { it.isNotBlank() }
+        ?: firebaseUser?.email?.substringBefore("@")
+        ?: "Devotee"
+
+    val totalPujasDone = userProfile?.pujasCount?.takeIf { it > 0 } ?: allPujas.count { it.isBooked }
+    val totalGauSevas = userProfile?.animalsCount?.takeIf { it > 0 } ?: contributions.count { it.targetType == "GAUSHALA" || it.targetType == "ANIMAL" }
+    val totalContributed = userProfile?.totalContributedRupees?.takeIf { it > 0 } ?: contributions.sumOf { it.amountRupees }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -158,7 +157,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = userProfile?.name ?: "Devotee",
+                    text = devoteeDisplayName,
                     fontFamily = SerifFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
@@ -177,7 +176,7 @@ fun ProfileScreen(
                         modifier = Modifier.size(14.dp)
                     )
                     Text(
-                        text = userProfile?.location ?: "Mumbai, India",
+                        text = userProfile?.location?.takeIf { it.isNotBlank() } ?: "India",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -236,7 +235,7 @@ fun ProfileScreen(
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = if (firebaseUser != null) "FIREBASE SYNCED" else "OFFLINE READY",
+                            text = if (firebaseUser != null) "FIREBASE SYNCED" else "AUTHENTICATED",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = DeepMoss
@@ -256,21 +255,21 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    HeaderStat(label = "Pujas Done", value = "${userProfile?.pujasCount ?: 12}")
+                    HeaderStat(label = "Pujas Done", value = "$totalPujasDone")
                     Box(
                         modifier = Modifier
                             .width(1.dp)
                             .height(30.dp)
                             .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                     )
-                    HeaderStat(label = "Gau Seva", value = "${userProfile?.animalsCount ?: 5}")
+                    HeaderStat(label = "Gau Seva", value = "$totalGauSevas")
                     Box(
                         modifier = Modifier
                             .width(1.dp)
                             .height(30.dp)
                             .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                     )
-                    HeaderStat(label = "Total Seva", value = "₹${userProfile?.totalContributedRupees ?: 5200}")
+                    HeaderStat(label = "Total Seva", value = "₹$totalContributed")
                 }
             }
         }
@@ -565,7 +564,7 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.height(24.dp))
 
                         Text(
-                            text = "Firebase Account & Cloud Sync",
+                            text = "Account & Cloud Sync",
                             fontFamily = SerifFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 18.sp
@@ -584,51 +583,41 @@ fun ProfileScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     Icon(
-                                        imageVector = if (firebaseUser != null) Icons.Default.Verified else Icons.Default.Shield,
+                                        imageVector = Icons.Default.Verified,
                                         contentDescription = null,
-                                        tint = if (firebaseUser != null) DeepMoss else RitualClay,
+                                        tint = DeepMoss,
                                         modifier = Modifier.size(28.dp)
                                     )
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = if (firebaseUser != null) {
-                                                firebaseUser.displayName ?: firebaseUser.email ?: "Authenticated Devotee"
-                                            } else {
-                                                "Offline Devotee Mode"
-                                            },
+                                            text = firebaseUser?.displayName ?: userProfile?.name ?: "Devotee",
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 15.sp
                                         )
                                         Text(
-                                            text = if (firebaseUser != null) {
-                                                "UID: ${firebaseUser.uid.take(12)}... • Firestore Synced"
-                                            } else {
-                                                "Sign in to synchronize your bookings & seva across devices"
-                                            },
+                                            text = firebaseUser?.email ?: userProfile?.email ?: "Authenticated via Firebase",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
+                                        if (firebaseUser?.uid != null) {
+                                            Text(
+                                                text = "UID: ${firebaseUser.uid.take(12)}... • Firestore Synced",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                fontSize = 11.sp,
+                                                color = DeepMoss
+                                            )
+                                        }
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
 
-                                if (firebaseUser != null) {
-                                    OutlinedButton(
-                                        onClick = onSignOut,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = RitualClay)
-                                    ) {
-                                        Text("Sign Out from Firebase")
-                                    }
-                                } else {
-                                    Button(
-                                        onClick = { showAuthDialog = true },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        colors = ButtonDefaults.buttonColors(containerColor = RitualClay)
-                                    ) {
-                                        Text("Sign In / Register with Firebase")
-                                    }
+                                OutlinedButton(
+                                    onClick = onSignOut,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RitualClay)
+                                ) {
+                                    Text("Sign Out of Sattva", fontWeight = FontWeight.SemiBold)
                                 }
                             }
                         }
@@ -779,154 +768,6 @@ fun ProfileScreen(
         )
     }
 
-    // Firebase Auth Dialog
-    if (showAuthDialog) {
-        AlertDialog(
-            onDismissRequest = { showAuthDialog = false },
-            title = {
-                Text(
-                    text = if (authIsSignUp) "Register with Firebase" else "Sign In with Firebase",
-                    fontFamily = SerifFontFamily,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (authIsSignUp) {
-                        OutlinedTextField(
-                            value = authDisplayName,
-                            onValueChange = { authDisplayName = it },
-                            label = { Text("Devotee Name") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    OutlinedTextField(
-                        value = authEmail,
-                        onValueChange = { authEmail = it },
-                        label = { Text("Email Address") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    OutlinedTextField(
-                        value = authPassword,
-                        onValueChange = { authPassword = it },
-                        label = { Text("Password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    authError?.let { err ->
-                        Text(
-                            text = err,
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextButton(
-                            onClick = {
-                                authIsSignUp = !authIsSignUp
-                                authError = null
-                            }
-                        ) {
-                            Text(
-                                text = if (authIsSignUp) "Already registered? Sign in" else "New devotee? Register",
-                                fontSize = 12.sp,
-                                color = RitualClay
-                            )
-                        }
-                    }
-
-                    if (onGoogleSignIn != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedButton(
-                            onClick = {
-                                showAuthDialog = false
-                                onGoogleSignIn()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Sign in with Google", color = DeepMoss)
-                        }
-                    }
-
-                    // Quick Devotee sign-in option
-                    TextButton(
-                        onClick = {
-                            authLoading = true
-                            onSignInAsDevotee("Devotee") { success, err ->
-                                authLoading = false
-                                if (success) {
-                                    showAuthDialog = false
-                                } else {
-                                    authError = err ?: "Sign in failed"
-                                }
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Continue as Guest Devotee", fontSize = 12.sp, color = DeepMoss)
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (authEmail.isBlank() || authPassword.isBlank()) {
-                            authError = "Please fill in all fields"
-                            return@Button
-                        }
-                        authLoading = true
-                        authError = null
-                        if (authIsSignUp) {
-                            onSignUpWithEmail(authEmail, authPassword, authDisplayName.ifBlank { "Devotee" }) { success, err ->
-                                authLoading = false
-                                if (success) {
-                                    showAuthDialog = false
-                                } else {
-                                    authError = err ?: "Sign up failed"
-                                }
-                            }
-                        } else {
-                            onSignInWithEmail(authEmail, authPassword) { success, err ->
-                                authLoading = false
-                                if (success) {
-                                    showAuthDialog = false
-                                } else {
-                                    authError = err ?: "Sign in failed"
-                                }
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = RitualClay),
-                    enabled = !authLoading
-                ) {
-                    if (authLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White)
-                    } else {
-                        Text(if (authIsSignUp) "Create Account" else "Sign In")
-                    }
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAuthDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
 }
 
 @Composable

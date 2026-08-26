@@ -57,6 +57,7 @@ import com.example.data.model.AnimalResident
 import com.example.data.model.DailyWisdom
 import com.example.data.model.PanchangInfo
 import com.example.data.model.Puja
+import com.example.data.model.SevaContribution
 import com.example.data.model.UserProfile
 import com.example.core.ui.components.CardSkeleton
 import com.example.core.ui.components.HorizontalCardSkeletonRow
@@ -78,6 +79,7 @@ fun HomeScreen(
     animalsNeedingSeva: List<AnimalResident>,
     todayPanchang: PanchangInfo,
     todayWisdom: DailyWisdom,
+    contributions: List<SevaContribution> = emptyList(),
     isLoading: Boolean = false,
     onPujaClick: (String) -> Unit,
     onAnimalClick: (String) -> Unit,
@@ -88,6 +90,10 @@ fun HomeScreen(
     onSupportAnimal: (AnimalResident) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val devoteeFirstName = userProfile?.name?.trim()?.split(" ")?.firstOrNull()?.takeIf { it.isNotBlank() } ?: "Devotee"
+    val sevasCompleted = userProfile?.pujasCount?.takeIf { it > 0 } ?: contributions.size
+    val totalContributed = userProfile?.totalContributedRupees?.takeIf { it > 0 } ?: contributions.sumOf { it.amountRupees }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 100.dp)
@@ -100,7 +106,7 @@ fun HomeScreen(
                     .padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 Text(
-                    text = "Namaste, ${userProfile?.name?.split(" ")?.firstOrNull() ?: "Aarav"}",
+                    text = "Namaste, $devoteeFirstName",
                     fontFamily = SerifFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 28.sp,
@@ -249,8 +255,8 @@ fun HomeScreen(
                     .padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 ImpactSummaryCard(
-                    sevasCompleted = userProfile?.pujasCount ?: 12,
-                    totalContributedRupees = userProfile?.totalContributedRupees ?: 5200,
+                    sevasCompleted = sevasCompleted,
+                    totalContributedRupees = totalContributed,
                     onViewProfile = onViewProfile
                 )
             }

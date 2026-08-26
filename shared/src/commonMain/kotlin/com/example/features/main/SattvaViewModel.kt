@@ -114,6 +114,10 @@ class SattvaViewModel : ViewModel() {
     private val _donationTarget = MutableStateFlow<DonationTarget?>(null)
     val donationTarget: StateFlow<DonationTarget?> = _donationTarget.asStateFlow()
 
+    // Auth state loading — true on initial cold launch until Firebase auth status is determined
+    private val _isAuthChecking = MutableStateFlow(true)
+    val isAuthChecking: StateFlow<Boolean> = _isAuthChecking.asStateFlow()
+
     // Catalog loading state — true until first non-empty data arrives or 4s timeout
     private val _isCatalogLoading = MutableStateFlow(true)
     val isCatalogLoading: StateFlow<Boolean> = _isCatalogLoading.asStateFlow()
@@ -136,24 +140,35 @@ class SattvaViewModel : ViewModel() {
         val database = AppDependencies.database
         repository = SattvaRepository(database)
 
-        authUser = authRepo.authState.stateIn(viewModelScope, SharingStarted.Lazily, authRepo.currentUser)
+        authUser = authRepo.authState.stateIn(viewModelScope, SharingStarted.Eagerly, authRepo.currentUser)
         isUserSignedIn = authRepo.authState
             .map { it != null }
-            .stateIn(viewModelScope, SharingStarted.Lazily, authRepo.currentUser != null)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, authRepo.currentUser != null)
 
         allPujas = repository.allPujas.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
         allGaushalas = repository.allGaushalas.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
         allAnimals = repository.allAnimals.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
         urgentAnimals = repository.urgentAnimals.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-        userProfile = repository.userProfile.stateIn(viewModelScope, SharingStarted.Lazily, UserProfile())
+        userProfile = repository.userProfile.stateIn(viewModelScope, SharingStarted.Lazily, null)
         sevaContributions = repository.allContributions.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-        familyMembers = repository.familyMembers.stateIn(viewModelScope, SharingStarted.Lazily, repository.getDefaultFamilyMembers())
+        familyMembers = repository.familyMembers.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
         todayPanchang = repository.getTodayPanchang()
         todayWisdom = repository.getTodayWisdom()
 
         viewModelScope.launch {
             repository.seedInitialDataIfEmpty()
+        }
+
+        // Complete auth checking on initial state emission or quick timeout
+        viewModelScope.launch {
+            delay(1200)
+            _isAuthChecking.value = false
+        }
+        viewModelScope.launch {
+            authRepo.authState.collect {
+                _isAuthChecking.value = false
+            }
         }
 
         // Resolve loading state: flip to false when pujas arrive OR after 4s safety timeout
@@ -365,8 +380,8 @@ class SattvaViewModel : ViewModel() {
     // Firebase Auth actions
     fun signInWithGoogleToken(idToken: String, onComplete: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
-            authRepo.signInWithGoogle(idToken).onSuccess {
-                _toastMessage.value = "Welcome back, ${it.displayName ?: "Devotee"}!"
+            authRepo.signInWithGoogle(idToken).onSuccess { user ->
+                _toastMessage.value = "Welcome back, ${user.displayName ?: user.email ?: "Devotee"}!"
                 onComplete(true, null)
             }.onFailure {
                 onComplete(false, it.message)
@@ -376,8 +391,8 @@ class SattvaViewModel : ViewModel() {
 
     fun signInWithEmail(email: String, pass: String, onComplete: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
-            authRepo.signInWithEmail(email, pass).onSuccess {
-                _toastMessage.value = "Welcome back, ${it.displayName ?: "Devotee"}!"
+            authRepo.signInWithEmail(email, pass).onSuccess { user ->
+                _toastMessage.value = "Welcome back, ${user.displayName ?: user.email ?: "Devotee"}!"
                 onComplete(true, null)
             }.onFailure {
                 onComplete(false, it.message)
@@ -396,20 +411,18 @@ class SattvaViewModel : ViewModel() {
         }
     }
 
-    fun signInAsDevotee(displayName: String = "Devotee", onComplete: (Boolean, String?) -> Unit) {
-        viewModelScope.launch {
-            authRepo.signInAnonymously(displayName).onSuccess {
-                _toastMessage.value = "Signed in as $displayName."
-                onComplete(true, null)
-            }.onFailure {
-                onComplete(false, it.message)
-            }
-        }
-    }
-
     fun signOut() {
-        viewModelScope.launch { authRepo.signOut() }
-        _toastMessage.value = "Signed out successfully."
+        viewModelScope.launch {
+            authRepo.signOut()
+            repository.clearUserData()
+            _currentTab.value = MainTab.HOME
+            _selectedPujaId.value = null
+            _selectedGaushalaId.value = null
+            _selectedAnimalId.value = null
+            _showAnimalDiscovery.value = false
+            _donationTarget.value = null
+            _toastMessage.value = "Signed out successfully."
+        }
     }
 
     fun uploadProfilePhoto(bytes: ByteArray) {

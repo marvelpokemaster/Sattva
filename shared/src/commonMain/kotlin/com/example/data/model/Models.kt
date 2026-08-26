@@ -104,14 +104,15 @@ data class SevaContribution(
 data class UserProfile(
     @PrimaryKey val id: String = "",
     val name: String = "Devotee",
-    val location: String = "Mumbai, India",
+    val email: String = "",
+    val location: String = "India",
     val gotra: String = "Kashyapa",
     val nakshatra: String = "Rohini",
-    val rashi: String = "Vrishabha (Taurus)",
-    val avatarUrl: String = "https://lh3.googleusercontent.com/aida-public/AB6AXuADMpwdiC3G39nZ2nCVMn1bu8eDkd-3LPnmDVmZE5DcpABkusRUlmUrb0Yx7s99SDwQmdZ7t-XryMbqL_ttMe9qKUMbq6bOB7gPdteFOZh3_SMUSOW0SsgLeVBFvVZbZ86bvDC_ev_sM0xGJ4QXFLAPVGss6lH21rGPoWe5zKFrE7iMlHp4IH8Gl5AF2ouLuKdTNYZsa-XeXUZMEbCYEOJibs5pF9e99L6H_IfWGWiZRYLNK3NrkAc",
-    val pujasCount: Int = 12,
-    val animalsCount: Int = 5,
-    val totalContributedRupees: Int = 5200
+    val rashi: String = "Vrishabha",
+    val avatarUrl: String = "",
+    val pujasCount: Int = 0,
+    val animalsCount: Int = 0,
+    val totalContributedRupees: Int = 0
 ) {
     val city: String
         get() = location

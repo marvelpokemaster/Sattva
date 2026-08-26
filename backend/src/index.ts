@@ -148,13 +148,17 @@ export default {
     }
 
     // --- Authenticated Endpoints Below ---
-    const isAuthRoute = path === "/api/v1/profile" || path === "/api/v1/donations";
+    const isAuthRoute = path.startsWith("/api/v1/profile") ||
+                        path.startsWith("/api/v1/donations") ||
+                        path.startsWith("/api/v1/bookings") ||
+                        path.startsWith("/api/v1/bookmarks") ||
+                        path.startsWith("/api/v1/family");
     let uid: string | null = null;
     
     if (isAuthRoute) {
       uid = await verifyAuthToken(request, env.FIREBASE_API_KEY);
       if (!uid) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+        return new Response(JSON.stringify({ error: "Unauthorized: Invalid or missing authentication token" }), { status: 401, headers: corsHeaders });
       }
     }
 
@@ -254,6 +258,111 @@ export default {
         
         if (!resp.ok) throw new Error(`HTTP ${resp.status} ${await resp.text()}`);
         return new Response(JSON.stringify({ id: donationId, status: "PENDING" }), { status: 201, headers: corsHeaders });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    // Puja Bookings GET & POST
+    if (path === "/api/v1/bookings" && method === "GET") {
+      try {
+        const fsUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}/puja_bookings`;
+        const resp = await fetch(fsUrl, { headers: { "User-Agent": "Utsavam-Worker" } });
+        if (!resp.ok) {
+          if (resp.status === 404) return new Response(JSON.stringify({ bookings: [] }), { status: 200, headers: corsHeaders });
+          throw new Error(`HTTP ${resp.status}`);
+        }
+        const data: any = await resp.json();
+        const results = (data.documents || []).map((doc: any) => {
+          const item: Record<string, any> = { bookingId: doc.name.split("/").pop() };
+          for (const [k, v] of Object.entries<any>(doc.fields || {})) {
+            if ("stringValue" in v) item[k] = v.stringValue;
+            else if ("integerValue" in v) item[k] = parseInt(v.integerValue, 10);
+          }
+          return item;
+        });
+        return new Response(JSON.stringify({ bookings: results }), { status: 200, headers: corsHeaders });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    if (path === "/api/v1/bookings" && method === "POST") {
+      try {
+        const body: any = await request.json();
+        const bookingId = crypto.randomUUID().replace(/-/g, "");
+        const fsUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}/puja_bookings?documentId=${bookingId}`;
+        
+        const fields: any = {
+          bookingId: { stringValue: bookingId },
+          pujaId: { stringValue: body.pujaId || "" },
+          devoteeName: { stringValue: body.devoteeName || "" },
+          gotra: { stringValue: body.gotra || "" },
+          bookingDateStr: { stringValue: new Date().toISOString().split("T")[0] },
+          scheduledDateStr: { stringValue: body.scheduledDateStr || "" },
+          aiGeneratedSankalpa: { stringValue: body.aiGeneratedSankalpa || "" },
+          status: { stringValue: "PENDING" },
+          paymentStatus: { stringValue: "PENDING" }
+        };
+
+        const resp = await fetch(fsUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "User-Agent": "Utsavam-Worker" },
+          body: JSON.stringify({ fields })
+        });
+        
+        if (!resp.ok) throw new Error(`HTTP ${resp.status} ${await resp.text()}`);
+        return new Response(JSON.stringify({ id: bookingId, status: "PENDING" }), { status: 201, headers: corsHeaders });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    // Family Members GET & POST & DELETE
+    if (path === "/api/v1/family" && method === "GET") {
+      try {
+        const fsUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}/family_members`;
+        const resp = await fetch(fsUrl, { headers: { "User-Agent": "Utsavam-Worker" } });
+        if (!resp.ok) {
+          if (resp.status === 404) return new Response(JSON.stringify({ family: [] }), { status: 200, headers: corsHeaders });
+          throw new Error(`HTTP ${resp.status}`);
+        }
+        const data: any = await resp.json();
+        const results = (data.documents || []).map((doc: any) => {
+          const item: Record<string, any> = { id: doc.name.split("/").pop() };
+          for (const [k, v] of Object.entries<any>(doc.fields || {})) {
+            if ("stringValue" in v) item[k] = v.stringValue;
+          }
+          return item;
+        });
+        return new Response(JSON.stringify({ family: results }), { status: 200, headers: corsHeaders });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+      }
+    }
+
+    if (path === "/api/v1/family" && method === "POST") {
+      try {
+        const body: any = await request.json();
+        const memberId = crypto.randomUUID().replace(/-/g, "");
+        const fsUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${uid}/family_members?documentId=${memberId}`;
+        
+        const fields: any = {
+          id: { stringValue: memberId },
+          name: { stringValue: body.name || "" },
+          relation: { stringValue: body.relation || "" },
+          gotra: { stringValue: body.gotra || "" },
+          nakshatra: { stringValue: body.nakshatra || "" }
+        };
+
+        const resp = await fetch(fsUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "User-Agent": "Utsavam-Worker" },
+          body: JSON.stringify({ fields })
+        });
+        
+        if (!resp.ok) throw new Error(`HTTP ${resp.status} ${await resp.text()}`);
+        return new Response(JSON.stringify({ id: memberId }), { status: 201, headers: corsHeaders });
       } catch (err: any) {
         return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
       }

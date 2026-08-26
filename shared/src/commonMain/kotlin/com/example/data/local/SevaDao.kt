@@ -20,4 +20,7 @@ interface SevaDao {
 
     @Query("SELECT COALESCE(SUM(amountRupees), 0) FROM seva_contributions")
     fun getTotalAmountContributed(): Flow<Int>
+
+    @Query("DELETE FROM seva_contributions")
+    suspend fun clearContributions()
 }

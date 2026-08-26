@@ -33,4 +33,7 @@ interface UserProfileDao {
 
     @Query("UPDATE user_profile SET avatarUrl = :avatarUrl")
     suspend fun updateAvatar(avatarUrl: String)
+
+    @Query("DELETE FROM user_profile")
+    suspend fun clearProfile()
 }

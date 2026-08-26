@@ -23,7 +23,6 @@ class IosAuthRepository : AuthRepository {
     private val _authState = MutableStateFlow<AuthUser?>(null)
     override val currentUser: AuthUser? get() = _authState.value
     override val authState: Flow<AuthUser?> = _authState
-    override val currentUserId: String get() = currentUser?.uid ?: ""
 
     override suspend fun signInWithEmail(email: String, pass: String): Result<AuthUser> =
         Result.failure(UnsupportedOperationException("iOS Firebase Auth is pending Xcode/macOS build configuration."))
@@ -31,11 +30,10 @@ class IosAuthRepository : AuthRepository {
     override suspend fun signUpWithEmail(email: String, pass: String, name: String): Result<AuthUser> =
         Result.failure(UnsupportedOperationException("iOS Firebase Auth is pending Xcode/macOS build configuration."))
 
-    override suspend fun signInAnonymously(displayName: String): Result<AuthUser> =
-        Result.failure(UnsupportedOperationException("iOS Firebase Auth is pending Xcode/macOS build configuration."))
-
     override suspend fun signInWithGoogle(idToken: String): Result<AuthUser> =
         Result.failure(UnsupportedOperationException("iOS Firebase Auth is pending Xcode/macOS build configuration."))
+
+    override suspend fun getAuthToken(): String? = null
 
     override suspend fun signOut() {
         _authState.value = null
@@ -49,6 +47,8 @@ class IosCatalogRepository : CatalogRepository {
     override suspend fun getGaushalas(): Result<List<FirestoreGaushala>> = Result.success(emptyList())
     override suspend fun getAnimals(gaushalaId: String?): Result<List<FirestoreAnimal>> = Result.success(emptyList())
     override fun observeAnimals(gaushalaId: String?): Flow<List<FirestoreAnimal>> = flowOf(emptyList())
+    override fun observeWelfareUpdates(gaushalaId: String?, animalId: String?): Flow<List<FirestoreWelfareUpdate>> = flowOf(emptyList())
+    override suspend fun getWelfareUpdates(gaushalaId: String?, animalId: String?): Result<List<FirestoreWelfareUpdate>> = Result.success(emptyList())
     override fun observeDailyWisdom(): Flow<List<FirestoreDailyContent>> = flowOf(emptyList())
     override suspend fun getPuja(id: String): FirestorePuja? = null
     override suspend fun getGaushala(id: String): FirestoreGaushala? = null

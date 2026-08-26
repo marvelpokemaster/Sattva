@@ -63,8 +63,8 @@ object FirebaseInitializer {
             try {
                 pushImpl.getFcmToken().onSuccess { token ->
                     Log.d(TAG, "Initial FCM Token obtained: $token")
-                    val currentUid = authImpl.currentUserId
-                    if (currentUid.isNotBlank()) {
+                    val currentUid = authImpl.currentUser?.uid
+                    if (!currentUid.isNullOrBlank()) {
                         userImpl.updateFcmToken(currentUid, token)
                     }
                 }

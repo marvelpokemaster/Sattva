@@ -44,9 +44,6 @@ class FirebaseAuthRepositoryImpl(
             null
         }
 
-    override val currentUserId: String
-        get() = currentUser?.uid ?: ""
-
     override suspend fun signInWithGoogle(idToken: String): Result<AuthUser> {
         return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
@@ -87,23 +84,6 @@ class FirebaseAuthRepositoryImpl(
             Result.success(user.toAuthUser())
         } catch (e: Exception) {
             Log.e(TAG, "signUpWithEmail failed: ${e.message}")
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun signInAnonymously(displayName: String): Result<AuthUser> {
-        return try {
-            val authResult = auth.signInAnonymously().await()
-            val user = authResult.user
-                ?: return Result.failure(IllegalStateException("Firebase user was null after Anonymous sign-in"))
-            
-            val profileUpdates = UserProfileChangeRequest.Builder()
-                .setDisplayName(displayName)
-                .build()
-            user.updateProfile(profileUpdates).await()
-            Result.success(user.toAuthUser())
-        } catch (e: Exception) {
-            Log.e(TAG, "signInAnonymously failed: ${e.message}")
             Result.failure(e)
         }
     }
