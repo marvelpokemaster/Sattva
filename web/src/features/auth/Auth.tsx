@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import './Auth.css';
@@ -45,11 +45,6 @@ export function Auth() {
     }
   };
 
-  const handleDevoteeDemo = () => {
-    localStorage.setItem('dev_auth', 'true');
-    window.location.href = '/';
-  };
-
   return (
     <div className="auth-page">
       <div className="auth-background" />
@@ -63,20 +58,20 @@ export function Auth() {
           <p className="auth-subtitle">
             {isLogin 
               ? 'Connect with Vedic rituals, sacred cow care, and lifelong seva.' 
-              : 'Join a sanctuary of compassionate devotion and verified transparency.'}
+              : 'Join a community of compassionate devotion and sacred sanctuary seva.'}
           </p>
         </div>
 
         <div className="auth-tabs">
           <button 
-            type="button"
+            type="button" 
             className={`auth-tab ${isLogin ? 'active' : ''}`}
             onClick={() => { setIsLogin(true); setError(''); }}
           >
             Sign In
           </button>
           <button 
-            type="button"
+            type="button" 
             className={`auth-tab ${!isLogin ? 'active' : ''}`}
             onClick={() => { setIsLogin(false); setError(''); }}
           >
@@ -120,17 +115,6 @@ export function Auth() {
             <ArrowRight size={16} />
           </button>
         </form>
-
-        <div className="auth-divider">or explore sanctuary</div>
-
-        <button 
-          type="button" 
-          className="demo-guest-btn"
-          onClick={handleDevoteeDemo}
-        >
-          <Sparkles size={16} className="text-gold" />
-          <span>Continue as Devotee Guest</span>
-        </button>
       </div>
     </div>
   );

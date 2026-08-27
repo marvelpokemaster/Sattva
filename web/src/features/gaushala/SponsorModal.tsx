@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, CheckCircle, Heart, ShieldCheck, Sparkles, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { X, CheckCircle, Heart, Sparkles, Loader2 } from 'lucide-react';
 import type { Animal } from '@/lib/api/gaushala';
 import { createDonation } from '@/lib/api/profile';
 import { useAuth } from '@/features/auth/AuthContext';
@@ -36,7 +36,6 @@ export function SponsorModal({ animal, isOpen, onClose }: SponsorModalProps) {
         targetName: animal.name,
         sevaCategory: 'Cattle Welfare & Healing',
         dedication: dedication.trim() || undefined,
-        taxExempt80G: true,
       });
 
       setSuccessId(res.donationId || `SEVA-${Date.now().toString().slice(-6)}`);
@@ -75,7 +74,7 @@ export function SponsorModal({ animal, isOpen, onClose }: SponsorModalProps) {
               Your compassionate offering flows directly toward daily nourishment and veterinary healing at Shri Krishna Gaushala.
             </p>
             <div className="badge-gold my-2">
-              Receipt No: {successId} • 80G Tax Exempt
+              Receipt No: {successId} • Sponsorship Recorded
             </div>
             <button className="btn-primary mt-4" onClick={onClose}>
               Return to Passport
@@ -122,8 +121,8 @@ export function SponsorModal({ animal, isOpen, onClose }: SponsorModalProps) {
             </div>
 
             <div className="flex items-center gap-2 text-xs text-muted">
-              <ShieldCheck size={16} className="text-tulsi" />
-              <span>100% Tax Deductible under Section 80G of IT Act</span>
+              <Heart size={14} className="text-terracotta" />
+              <span>Direct sponsorship dedicated to {animal.name}'s daily feed and care</span>
             </div>
 
             <button 

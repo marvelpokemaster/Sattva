@@ -56,7 +56,7 @@ export function Home() {
           <span className="hero-subhead">सुप्रभातम् • शुभं भवतु</span>
           <span className="badge-gold">
             <ShieldCheck size={13} />
-            Verified Sanctuary
+            Vrindavan Sanctuary
           </span>
         </div>
 
@@ -188,8 +188,8 @@ export function Home() {
             <Sparkles size={22} />
           </div>
           <div>
-            <div className="impact-stat">98%</div>
-            <div className="impact-stat-label">Audited Gold Transparency</div>
+            <div className="impact-stat">100%</div>
+            <div className="impact-stat-label">Direct Care Allocation</div>
           </div>
         </div>
       </section>

@@ -156,7 +156,7 @@ export function PujaDetailModal({ puja, onClose }: PujaDetailModalProps) {
                       type="text"
                       required
                       className="form-input"
-                      placeholder="e.g. Arjun Sharma"
+                      placeholder="Enter devotee name for Sankalpa"
                       value={sankalpaName}
                       onChange={(e) => setSankalpaName(e.target.value)}
                     />
@@ -167,7 +167,7 @@ export function PujaDetailModal({ puja, onClose }: PujaDetailModalProps) {
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="e.g. Kashyapa, Bharadwaj"
+                      placeholder="e.g. Kashyapa, or Self"
                       value={gotra}
                       onChange={(e) => setGotra(e.target.value)}
                     />
@@ -189,7 +189,7 @@ export function PujaDetailModal({ puja, onClose }: PujaDetailModalProps) {
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="e.g. Priya (Spouse), Aarav (Son)"
+                      placeholder="e.g. Spouse, Son, Parents (comma separated)"
                       value={familyMembers}
                       onChange={(e) => setFamilyMembers(e.target.value)}
                     />

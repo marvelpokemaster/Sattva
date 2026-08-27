@@ -61,14 +61,14 @@ export function SevaExperience() {
         <div className="flex items-center gap-2">
           <span className="badge-gold">
             <ShieldCheck size={13} />
-            100% Tax Deductible (Section 80G)
+            Direct Sanctuary Offering
           </span>
         </div>
         <h1 className="typography-headline-lg">
           Sacred Gau Seva Initiatives
         </h1>
         <p>
-          Every rupee offered flows directly into verified food, medical care, and shelter for {totalCows} rescued cows at Shri Krishna Gaushala.
+          Every rupee offered flows directly into daily food, medical care, and shelter for {totalCows} rescued cows at Shri Krishna Gaushala.
         </p>
 
         <div className="flex flex-wrap gap-4 mt-2">
@@ -125,9 +125,9 @@ export function SevaExperience() {
             <ShieldCheck size={20} />
           </div>
           <div>
-            <h4 className="trust-text-title">100% Audited Transparency</h4>
+            <h4 className="trust-text-title">Direct Sanctuary Allocation</h4>
             <p className="trust-text-desc">
-              Gaushala financial books and feeding logs are verified quarterly with live receipts.
+              All contributions directly support daily green fodder, veterinary medical kits, and shelter maintenance.
             </p>
           </div>
         </div>
@@ -137,9 +137,9 @@ export function SevaExperience() {
             <Award size={20} />
           </div>
           <div>
-            <h4 className="trust-text-title">Instant 80G Tax Exemption</h4>
+            <h4 className="trust-text-title">Digital Offering Receipts</h4>
             <p className="trust-text-desc">
-              Receive official digital tax deduction certificates immediately upon seva completion.
+              Receive an instant digital receipt and contribution reference recorded in your Devotee Profile.
             </p>
           </div>
         </div>
@@ -149,9 +149,9 @@ export function SevaExperience() {
             <Utensils size={20} />
           </div>
           <div>
-            <h4 className="trust-text-title">Photo Proof of Feeding</h4>
+            <h4 className="trust-text-title">Resident Care Updates</h4>
             <p className="trust-text-desc">
-              Devotees receive updates and photo confirmations of resident cows receiving their offerings.
+              Follow regular sanctuary welfare updates and recovery progress for sheltered resident cattle.
             </p>
           </div>
         </div>

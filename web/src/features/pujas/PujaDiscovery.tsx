@@ -116,7 +116,7 @@ export function PujaDiscovery() {
         <div className="flex items-center gap-2">
           <span className="badge-gold">
             <ShieldCheck size={13} />
-            Agama & Vedic Authenticity
+            Vedic Rituals & Archana
           </span>
         </div>
         <h1 className="typography-headline-lg">Sacred Pujas & Rituals</h1>

@@ -18,6 +18,7 @@ export interface Donation {
   dedication?: string;
   taxExempt80G?: boolean;
   createdAt?: string;
+  dateStr?: string;
 }
 
 export interface FamilyMember {

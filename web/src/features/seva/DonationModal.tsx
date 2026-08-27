@@ -21,8 +21,6 @@ export function DonationModal({
   const [customAmount, setCustomAmount] = useState('');
   const [initiative, setInitiative] = useState(defaultInitiative);
   const [dedication, setDedication] = useState('');
-  const [panNumber, setPanNumber] = useState('');
-  const [need80G, setNeed80G] = useState(true);
   const [loading, setLoading] = useState(false);
   const [receiptId, setReceiptId] = useState<string | null>(null);
 
@@ -43,7 +41,6 @@ export function DonationModal({
         targetName: initiative,
         sevaCategory: 'Gaushala Welfare',
         dedication: dedication.trim() || undefined,
-        taxExempt80G: need80G,
       });
 
       setReceiptId(res.donationId || `TXN-${Date.now().toString().slice(-6)}`);
@@ -81,10 +78,10 @@ export function DonationModal({
               Devotee {user?.displayName || 'Seeker'}, your contribution of <strong>₹{customAmount || amount}</strong> for <em>{initiative}</em> has been offered to Shri Krishna Gaushala.
             </p>
             <div className="badge-gold my-2">
-              Receipt No: {receiptId} • 80G Compliant
+              Receipt No: {receiptId} • Offering Confirmed
             </div>
             <p className="text-xs text-text-muted">
-              Your 80G tax receipt has been generated and saved to your Devotee Profile.
+              Your contribution receipt and acknowledgment have been recorded in your Devotee Profile.
             </p>
             <button className="btn-primary mt-4" onClick={onClose}>
               Done
@@ -143,33 +140,6 @@ export function DonationModal({
                 onChange={(e) => setDedication(e.target.value)}
               />
             </div>
-
-            <div className="flex items-center gap-2 mt-1">
-              <input
-                type="checkbox"
-                id="check-80g"
-                checked={need80G}
-                onChange={(e) => setNeed80G(e.target.checked)}
-                className="accent-terracotta w-4 h-4 cursor-pointer"
-              />
-              <label htmlFor="check-80g" className="text-xs text-text-secondary cursor-pointer">
-                I request an 80G Income Tax Exemption certificate
-              </label>
-            </div>
-
-            {need80G && (
-              <div className="form-group">
-                <label className="form-label">PAN Card Number (for 80G Tax Receipt)</label>
-                <input
-                  type="text"
-                  placeholder="ABCDE1234F"
-                  className="form-input"
-                  value={panNumber}
-                  onChange={(e) => setPanNumber(e.target.value.toUpperCase())}
-                  maxLength={10}
-                />
-              </div>
-            )}
 
             <button 
               type="submit" 

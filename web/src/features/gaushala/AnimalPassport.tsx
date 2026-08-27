@@ -62,7 +62,7 @@ export function AnimalPassport() {
         </Link>
         <span className="badge-gold">
           <ShieldCheck size={13} />
-          Verified Resident #VRN-{animal.id.toUpperCase().slice(-4)}
+          Sanctuary Resident #{animal.id}
         </span>
       </nav>
 
@@ -161,11 +161,11 @@ export function AnimalPassport() {
         </section>
       </div>
 
-      {/* Welfare & Vet Audit Log Timeline */}
+      {/* Care & Veterinary Recovery Log Timeline */}
       <section className="passport-info-panel">
         <h3 className="panel-title">
           <Calendar size={18} className="text-gold" />
-          <span>Welfare & Veterinary Audit Log</span>
+          <span>Care & Veterinary Recovery Log</span>
         </h3>
 
         <div className="timeline-list">

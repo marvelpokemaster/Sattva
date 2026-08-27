@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
   LogOut, 
-  ShieldCheck, 
   Plus, 
-  MapPin
+  MapPin,
+  Heart,
+  Flame,
+  Users,
+  FileCheck
 } from 'lucide-react';
 import { getProfile, getDonations, getFamily, addFamilyMember, type Donation, type FamilyMember } from '@/lib/api/profile';
 import { getBookings, type PujaBooking } from '@/lib/api/puja';
@@ -44,66 +47,14 @@ export function Profile() {
     enabled: !!user,
   });
 
-  const profile = profileData?.profile || {
-    displayName: user?.displayName || 'Devotee Arjun',
-    city: 'Mathura / Vrindavan',
-    gotra: 'Kashyapa',
-    nakshatra: 'Mrigashirsha'
-  };
+  const profile = profileData?.profile;
+  const displayName = profile?.displayName || user?.displayName || user?.email?.split('@')[0] || 'Devotee';
+  const email = user?.email || 'Registered Devotee';
 
-  const defaultDonations: Donation[] = [
-    {
-      id: 'SEVA-882194',
-      targetType: 'ANIMAL',
-      targetName: 'Nandi (Injured Calf Care)',
-      sevaCategory: 'Gau Seva & Healing',
-      amountRupees: 1500,
-      paymentStatus: 'COMPLETED',
-      taxExempt80G: true,
-      createdAt: 'Aug 24, 2026'
-    },
-    {
-      id: 'SEVA-741029',
-      targetType: 'SEVA_INITIATIVE',
-      targetName: 'Monsoon Green Fodder & Hay',
-      sevaCategory: 'Fodder Nourishment',
-      amountRupees: 1100,
-      paymentStatus: 'COMPLETED',
-      taxExempt80G: true,
-      createdAt: 'Aug 18, 2026'
-    }
-  ];
-
-  const donations = (donationsData?.donations && donationsData.donations.length > 0)
-    ? donationsData.donations 
-    : defaultDonations;
-
-  const defaultBookings: PujaBooking[] = [
-    {
-      id: 'BK-10928',
-      pujaId: 'ganga_aarti_varanasi',
-      pujaTitle: 'Maha Ganga Aarti & Deep Daan',
-      templeName: 'Dashashwamedh Ghat, Varanasi',
-      amountRupees: 1101,
-      sankalpaName: profile.displayName || 'Devotee Arjun',
-      gotra: profile.gotra || 'Kashyapa',
-      status: 'CONFIRMED',
-      bookingDate: 'Aug 28, 2026 • 6:45 PM'
-    }
-  ];
-
-  const bookings = (bookingsData?.bookings && bookingsData.bookings.length > 0)
-    ? bookingsData.bookings 
-    : defaultBookings;
-
-  const defaultFamily: FamilyMember[] = [
-    { id: '1', name: 'Priya Sharma', relationship: 'Spouse', nakshatra: 'Rohini' },
-    { id: '2', name: 'Aarav Sharma', relationship: 'Son', nakshatra: 'Pushya' }
-  ];
-
-  const family = (familyData?.family && familyData.family.length > 0)
-    ? familyData.family 
-    : defaultFamily;
+  // Ground strictly in backend data without placeholder user identities or mock data
+  const donations: Donation[] = donationsData?.donations || [];
+  const bookings: PujaBooking[] = bookingsData?.bookings || [];
+  const family: FamilyMember[] = familyData?.family || [];
 
   const totalContributions = donations.reduce((sum, d) => sum + (d.amountRupees || 0), 0);
 
@@ -132,28 +83,37 @@ export function Profile() {
         <div className="devotee-avatar-box">
           <img 
             src={user?.photoURL || IMAGES.profile.defaultAvatar} 
-            alt={profile.displayName || 'Devotee'} 
+            alt={displayName} 
           />
         </div>
 
-        <h2 className="devotee-name-title">
-          {profile.displayName || user?.displayName || 'Devotee Arjun'}
-        </h2>
-        <p className="devotee-tagline">
-          {user?.email || 'devotee@sattva.org'}
-        </p>
+        <h2 className="devotee-name-title">{displayName}</h2>
+        <p className="devotee-tagline">{email}</p>
 
         <div className="devotee-badges-row">
-          <span className="badge-gold">
-            Gotra: {profile.gotra || 'Kashyapa'}
-          </span>
-          <span className="badge-tulsi">
-            Nakshatra: {profile.nakshatra || 'Mrigashirsha'}
-          </span>
-          <span className="badge-gold">
-            <MapPin size={12} />
-            {profile.city || 'Vrindavan'}
-          </span>
+          {profile?.gotra ? (
+            <span className="badge-gold">Gotra: {profile.gotra}</span>
+          ) : (
+            <span className="badge-gold text-muted">Gotra: Not specified</span>
+          )}
+
+          {profile?.nakshatra ? (
+            <span className="badge-tulsi">Nakshatra: {profile.nakshatra}</span>
+          ) : (
+            <span className="badge-tulsi text-muted">Nakshatra: Not specified</span>
+          )}
+
+          {profile?.city ? (
+            <span className="badge-gold">
+              <MapPin size={12} />
+              {profile.city}
+            </span>
+          ) : (
+            <span className="badge-gold text-muted">
+              <MapPin size={12} />
+              Location: Not specified
+            </span>
+          )}
         </div>
       </section>
 
@@ -191,58 +151,74 @@ export function Profile() {
       {/* Tab Panels */}
       {activeTab === 'seva' && (
         <div className="profile-content-panel">
-          {donations.map((d) => (
-            <div key={d.id} className="activity-item-card">
-              <div>
-                <h4 className="activity-meta-title">{d.targetName || 'Gau Seva Offering'}</h4>
-                <p className="activity-meta-sub">
-                  Ref: {d.id} • {d.createdAt || 'Recent'} • 
-                  <span className="text-tulsi ml-1 font-semibold">{d.paymentStatus}</span>
-                </p>
-                {d.dedication && (
-                  <p className="text-xs text-text-secondary italic mt-1">
-                    "{d.dedication}"
-                  </p>
-                )}
-              </div>
-
-              <div className="text-right">
-                <span className="font-serif font-bold text-lg text-terracotta block">
-                  ₹{d.amountRupees}
-                </span>
-                <span className="text-xs text-gold flex items-center justify-end gap-1 mt-1">
-                  <ShieldCheck size={12} /> 80G Receipt
-                </span>
-              </div>
+          {donations.length === 0 ? (
+            <div className="activity-item-card p-6 text-center text-text-secondary flex flex-col items-center gap-2">
+              <Heart size={28} className="text-muted" />
+              <p className="font-semibold text-sm text-text-primary">No Seva contributions recorded yet</p>
+              <p className="text-xs text-muted">Your sacred offerings and direct sanctuary receipts will appear here.</p>
             </div>
-          ))}
+          ) : (
+            donations.map((d) => (
+              <div key={d.id} className="activity-item-card">
+                <div>
+                  <h4 className="activity-meta-title">{d.targetName || 'Gau Seva Offering'}</h4>
+                  <p className="activity-meta-sub">
+                    Ref: {d.id} • {d.createdAt || d.dateStr || 'Recorded'} • 
+                    <span className="text-tulsi ml-1 font-semibold">{d.paymentStatus}</span>
+                  </p>
+                  {d.dedication && (
+                    <p className="text-xs text-text-secondary italic mt-1">
+                      "{d.dedication}"
+                    </p>
+                  )}
+                </div>
+
+                <div className="text-right">
+                  <span className="font-serif font-bold text-lg text-terracotta block">
+                    ₹{d.amountRupees}
+                  </span>
+                  <span className="text-xs text-gold flex items-center justify-end gap-1 mt-1">
+                    <FileCheck size={12} /> Receipt Recorded
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 
       {activeTab === 'pujas' && (
         <div className="profile-content-panel">
-          {bookings.map((b) => (
-            <div key={b.id} className="activity-item-card">
-              <div>
-                <div className="badge-gold self-start mb-1 text-xs">
-                  {b.status || 'CONFIRMED'}
-                </div>
-                <h4 className="activity-meta-title">{b.pujaTitle}</h4>
-                <p className="activity-meta-sub">
-                  {b.templeName} • {b.bookingDate || 'Scheduled Daily'}
-                </p>
-                <p className="text-xs text-text-secondary mt-1">
-                  Chanted for: <strong>{b.sankalpaName}</strong> (Gotra: {b.gotra || 'Self'})
-                </p>
-              </div>
-
-              <div className="text-right">
-                <span className="font-serif font-bold text-base text-terracotta">
-                  ₹{b.amountRupees}
-                </span>
-              </div>
+          {bookings.length === 0 ? (
+            <div className="activity-item-card p-6 text-center text-text-secondary flex flex-col items-center gap-2">
+              <Flame size={28} className="text-muted" />
+              <p className="font-semibold text-sm text-text-primary">No puja bookings found</p>
+              <p className="text-xs text-muted">Book a sacred ceremony across temple sanctums to view your bookings and live links here.</p>
             </div>
-          ))}
+          ) : (
+            bookings.map((b) => (
+              <div key={b.id || (b as any).bookingId} className="activity-item-card">
+                <div>
+                  <div className="badge-gold self-start mb-1 text-xs">
+                    {b.status || 'CONFIRMED'}
+                  </div>
+                  <h4 className="activity-meta-title">{b.pujaTitle}</h4>
+                  <p className="activity-meta-sub">
+                    {b.templeName} • {b.bookingDate || 'Scheduled Daily'}
+                  </p>
+                  <p className="text-xs text-text-secondary mt-1">
+                    Chanted for: <strong>{b.sankalpaName}</strong> (Gotra: {b.gotra || 'Self'})
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <span className="font-serif font-bold text-base text-terracotta">
+                    ₹{b.amountRupees}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 
@@ -268,7 +244,7 @@ export function Profile() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Radhika Sharma"
+                  placeholder="e.g. Family member name"
                   className="form-input"
                   value={memberName}
                   onChange={(e) => setMemberName(e.target.value)}
@@ -317,17 +293,25 @@ export function Profile() {
             </form>
           )}
 
-          {family.map((f) => (
-            <div key={f.id} className="family-member-chip">
-              <div>
-                <h5 className="font-semibold text-sm text-text-primary">{f.name}</h5>
-                <p className="text-xs text-text-muted">
-                  {f.relationship} {f.nakshatra ? `• Nakshatra: ${f.nakshatra}` : ''}
-                </p>
-              </div>
-              <span className="badge-tulsi text-xs">Included in Chants</span>
+          {family.length === 0 ? (
+            <div className="activity-item-card p-6 text-center text-text-secondary flex flex-col items-center gap-2">
+              <Users size={28} className="text-muted" />
+              <p className="font-semibold text-sm text-text-primary">No family members registered</p>
+              <p className="text-xs text-muted">Add your family members to include them automatically during puja Sankalpas.</p>
             </div>
-          ))}
+          ) : (
+            family.map((f) => (
+              <div key={f.id} className="family-member-chip">
+                <div>
+                  <h5 className="font-semibold text-sm text-text-primary">{f.name}</h5>
+                  <p className="text-xs text-text-muted">
+                    {f.relationship} {f.nakshatra ? `• Nakshatra: ${f.nakshatra}` : ''}
+                  </p>
+                </div>
+                <span className="badge-tulsi text-xs">Included in Chants</span>
+              </div>
+            ))
+          )}
         </div>
       )}
 
@@ -343,8 +327,8 @@ export function Profile() {
 
           <div className="activity-item-card">
             <div>
-              <h4 className="activity-meta-title">Tax Exemption Profile</h4>
-              <p className="activity-meta-sub">Automated 80G receipts compiled annually</p>
+              <h4 className="activity-meta-title">Offering Records</h4>
+              <p className="activity-meta-sub">Digital contribution records and receipts</p>
             </div>
             <span className="badge-gold">Configured</span>
           </div>

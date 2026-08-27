@@ -25,7 +25,7 @@ export function GaushalaDiscovery() {
     imageUrl: IMAGES.seva.sanctuary,
     animalsRescuedCount: 450,
     trustScorePercent: 98,
-    transparencyTier: 'Gold Tier Verified',
+    transparencyTier: 'Gold Tier',
     shelterPercent: 85,
     fodderPercent: 65,
     medicalPercent: 40,
@@ -95,7 +95,7 @@ export function GaushalaDiscovery() {
           />
           <div className="sanctuary-badge-tag">
             <ShieldCheck size={14} className="text-gold" />
-            <span>{gaushala.transparencyTier || 'Gold Tier Verified'}</span>
+            <span>{gaushala.transparencyTier || 'Gold Tier'}</span>
           </div>
         </div>
 
