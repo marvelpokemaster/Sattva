@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { 
   LogOut, 
   Plus, 
@@ -7,7 +8,8 @@ import {
   Heart,
   Flame,
   Users,
-  FileCheck
+  FileCheck,
+  ArrowRight
 } from 'lucide-react';
 import { getProfile, getDonations, getFamily, addFamilyMember, type Donation, type FamilyMember } from '@/lib/api/profile';
 import { getBookings, type PujaBooking } from '@/lib/api/puja';
@@ -152,10 +154,18 @@ export function Profile() {
       {activeTab === 'seva' && (
         <div className="profile-content-panel">
           {donations.length === 0 ? (
-            <div className="activity-item-card p-6 text-center text-text-secondary flex flex-col items-center gap-2">
-              <Heart size={28} className="text-muted" />
-              <p className="font-semibold text-sm text-text-primary">No Seva contributions recorded yet</p>
-              <p className="text-xs text-muted">Your sacred offerings and direct sanctuary receipts will appear here.</p>
+            <div className="profile-empty-card">
+              <div className="profile-empty-icon-wrap">
+                <Heart size={26} />
+              </div>
+              <h4 className="profile-empty-title">No Seva Contributions Recorded</h4>
+              <p className="profile-empty-desc">
+                Your sacred offerings towards green fodder, sanctuary shelter, and medical care will appear here.
+              </p>
+              <Link to="/seva" className="btn-secondary mt-1">
+                <span>Explore Gau Seva</span>
+                <ArrowRight size={14} />
+              </Link>
             </div>
           ) : (
             donations.map((d) => (
@@ -190,10 +200,18 @@ export function Profile() {
       {activeTab === 'pujas' && (
         <div className="profile-content-panel">
           {bookings.length === 0 ? (
-            <div className="activity-item-card p-6 text-center text-text-secondary flex flex-col items-center gap-2">
-              <Flame size={28} className="text-muted" />
-              <p className="font-semibold text-sm text-text-primary">No puja bookings found</p>
-              <p className="text-xs text-muted">Book a sacred ceremony across temple sanctums to view your bookings and live links here.</p>
+            <div className="profile-empty-card">
+              <div className="profile-empty-icon-wrap">
+                <Flame size={26} />
+              </div>
+              <h4 className="profile-empty-title">No Puja Bookings Found</h4>
+              <p className="profile-empty-desc">
+                Book an authentic temple ceremony across sacred sanctums to view your confirmed bookings and live darshan links here.
+              </p>
+              <Link to="/pujas" className="btn-secondary mt-1">
+                <span>Explore Sacred Pujas</span>
+                <ArrowRight size={14} />
+              </Link>
             </div>
           ) : (
             bookings.map((b) => (
@@ -294,10 +312,22 @@ export function Profile() {
           )}
 
           {family.length === 0 ? (
-            <div className="activity-item-card p-6 text-center text-text-secondary flex flex-col items-center gap-2">
-              <Users size={28} className="text-muted" />
-              <p className="font-semibold text-sm text-text-primary">No family members registered</p>
-              <p className="text-xs text-muted">Add your family members to include them automatically during puja Sankalpas.</p>
+            <div className="profile-empty-card">
+              <div className="profile-empty-icon-wrap">
+                <Users size={26} />
+              </div>
+              <h4 className="profile-empty-title">No Family Members Registered</h4>
+              <p className="profile-empty-desc">
+                Add your family members to include them automatically during sacred Sankalpa chants.
+              </p>
+              <button 
+                type="button"
+                className="btn-secondary mt-1"
+                onClick={() => setShowAddFamily(true)}
+              >
+                <Plus size={14} />
+                <span>Add Family Member</span>
+              </button>
             </div>
           ) : (
             family.map((f) => (

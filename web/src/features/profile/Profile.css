@@ -169,3 +169,45 @@
 .btn-signout:hover {
   background: rgba(176, 0, 32, 0.15);
 }
+
+/* Empty State Container Card */
+.profile-empty-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-empty-icon-wrap {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(224, 122, 95, 0.12);
+  border: 1px solid rgba(224, 122, 95, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-terracotta);
+  margin-bottom: 2px;
+}
+
+.profile-empty-title {
+  font-family: var(--font-family-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.profile-empty-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  max-width: 320px;
+  line-height: 1.5;
+  margin: 0;
+}
