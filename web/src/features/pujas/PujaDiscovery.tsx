@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getPujas } from '@/lib/api/puja';
 import { Sparkles, Sun, Flame, User, ArrowRight } from 'lucide-react';
 import './Puja.css';
+import { IMAGES } from '@/lib/images';
+import { CardSkeleton } from '@/components/ui/LoadingScreen';
 
 export function PujaDiscovery() {
   const { data, isLoading, error } = useQuery({
@@ -19,7 +21,7 @@ export function PujaDiscovery() {
       priceRupees: 2501,
       category: 'Special',
       isFeatured: true,
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBg4oM7-ie5kf_2k3kTQjbk6ojerukj9PqA-Lu8LEUAa__NVyUFXOdvEQPbKOPK6_Yiy7oxOaU75wGPE0i_8BfS1O5oWaDFUEojM82TnGSeMqtGe37xgewixajCQz4Kcydjn11DLaFzSWlSko1TlcqDnSvOuy5vAvBrv9PCG_-OoTiLB_K6bJohEDWYDz-UJ97E3Vmn5e2PDlmWpHZA4KQHfvrwvFnebSjzAPUjZxpf1LmTo-RICsc'
+      imageUrl: IMAGES.pujas.mahaSudarshana
     },
     {
       id: 'rudra_abhishekam',
@@ -29,7 +31,7 @@ export function PujaDiscovery() {
       priceRupees: 1500,
       category: 'Daily',
       isFeatured: true,
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBCjsJ32Isi-siW7mOhjQ2CqJ99NGkcp2ToZ515iWG1uldfwKvCRPLFXa1jEQUXrCjfWCyW4y6ovaBgj3wKkowOjIxhqI0b2c1gIuzGcFHRGPTb_-QTVlNVJqLNFB7Y_XcTv4RVJg40xiwKTXoKZrVXfLd6Tenf9y0drYbhYF-8BGSBu3ATtBO751cXsSQEm-yDxYvC4JEs92Cjl8dfuWpHO2WvQsvPy5o9_2PaXbP62m0qD_0N3PY'
+      imageUrl: IMAGES.pujas.rudraAbhishekam
     }
   ];
 
@@ -40,7 +42,7 @@ export function PujaDiscovery() {
       {/* Immersive Hero */}
       <section className="puja-hero">
         <img 
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZnbowwBB3qcDTYm-Hve4ofjXFg2OMEdXqq14S1ByBP6jJFn5f6JWtdXSB77q6a6-ekbb8LDtDQOSVvAMjpbM-Lu6ex6jdoEXAyJBkFFdq_zyIHc-V6TZ-GsGrDyw_xUlV-eYC-b43Hi_naVqah5LSiv9Y5GU4VcJy5y2q3-qFqf4PdDkCz0z7ZNEDt3s20dg9zQXG2ixCgDKb2ldpyhIAGXe-flwyJ4s3Fa6KLk69LusLZm_IqsM" 
+          src={IMAGES.pujas.templeHero} 
           alt="Temple Interior" 
           className="hero-image"
         />
@@ -85,7 +87,7 @@ export function PujaDiscovery() {
         </div>
         
         <div className="horizontal-scroll hide-scrollbar snap-x">
-          {isLoading && <p>Loading pujas...</p>}
+          {isLoading && <CardSkeleton count={2} />}
           {error && <p className="text-error">Error loading data.</p>}
           
           {!isLoading && !error && pujas.map((puja) => (

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import './Auth.css';
+import { useAuth } from '@/features/auth/AuthContext';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,7 +13,18 @@ export function Auth() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
+
+  if (authLoading) {
+    return <LoadingScreen message="Verifying Devotee..." subtext="Checking authentication status" />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

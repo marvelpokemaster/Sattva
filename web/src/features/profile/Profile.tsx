@@ -3,6 +3,7 @@ import { getProfile, getDonations } from '@/lib/api/profile';
 import { useAuth } from '@/features/auth/AuthContext';
 import { Edit2, Star, Tent, Heart, ArrowRight, Dog, Leaf } from 'lucide-react';
 import './Profile.css';
+import { IMAGES } from '@/lib/images';
 
 export function Profile() {
   const { user, signOut } = useAuth();
@@ -31,7 +32,7 @@ export function Profile() {
         <section className="profile-identity flex-col-center mb-stack-xl relative">
           <div className="profile-avatar-container mb-stack-md">
             <img 
-              src={user?.photoURL || "https://lh3.googleusercontent.com/aida-public/AB6AXuCLAkSLlnrrfmz-n5-SThAWAAuxKmF28TKKimti2kHsbwnknWyxsKRhMTBQ9SXjmQP68TwoOnXRtxfYBg95gkSM2vFFihTmmGpC8RUGPNR5wZQnEmNtsKvvSDJ5OuvXLmPpXiHoBHASS7CFHxvdQOgdJRNBjrcMRce91GfPMwIgtf3cz6gMOsHcu7eWIe77Ab5LiRQmxkYbJOverx_TL2ZSaJtbOV6Pmix-Uw4Fa9Mnwf0VxvHzI5I"} 
+              src={user?.photoURL || IMAGES.profile.defaultAvatar} 
               alt="User Profile" 
               className="profile-avatar"
             />

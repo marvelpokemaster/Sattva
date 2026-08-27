@@ -13,11 +13,15 @@ import { PujaDiscovery } from '@/features/pujas/PujaDiscovery';
 import { SevaExperience } from '@/features/seva/SevaExperience';
 import { Profile } from '@/features/profile/Profile';
 
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
+
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
-  if (loading) return <div>Loading...</div>; // TODO: Implement loading spinner
+  if (loading) {
+    return <LoadingScreen message="Restoring Sacred Session..." subtext="Connecting to Sattva" />;
+  }
   
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -36,21 +40,23 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Auth />} />
             
-            <Route element={<AppShell />}>
+            <Route 
+              element={
+                <ProtectedRoute>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
               <Route path="/" element={<Home />} />
               <Route path="/pujas" element={<PujaDiscovery />} />
               <Route path="/gaushala" element={<GaushalaDiscovery />} />
               <Route path="/gaushala/animal/:id" element={<AnimalPassport />} />
               <Route path="/seva" element={<SevaExperience />} />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } 
-              />
+              <Route path="/profile" element={<Profile />} />
             </Route>
+
+            {/* Fallback route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

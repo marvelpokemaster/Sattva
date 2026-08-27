@@ -9,7 +9,7 @@
 .auth-background {
   position: absolute;
   inset: 0;
-  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDkTPt54nO3ItrntOptJXAk4xDlW7EfzW69kRvEv9ji_tDa7JAX0stt4fW1fESii4ca-zYXc74lWHuEe71teQe5cOzDR6UuVfUSQ8OAtCQjyHEQfatJyhqxVHbljhGj2Q3y8fHHuFLgoKZibs0hMwrB7eUHm4F31oSxKe55TGnvTb4WWNhBTa0o_jf84sT1rb3NVSdO0zfBOHwtQS6o_VC_RdGBrwhxt0mqB-tTio8_Q8VCUSngG0U');
+  background-image: url('/images/backgrounds/auth-bg.jpg');
   background-size: cover;
   background-position: center;
   z-index: 0;

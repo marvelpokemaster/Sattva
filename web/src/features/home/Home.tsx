@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { Sun, CloudRain, Play } from 'lucide-react';
 import './Home.css';
 import { useAuth } from '@/features/auth/AuthContext';
+import { IMAGES } from '@/lib/images';
 
 export function Home() {
   const { user } = useAuth();
@@ -61,7 +62,7 @@ export function Home() {
           </div>
           <div className="featured-hero-card">
             <img 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9r5nB62u7mXo-RV4fq08ukZTzQby-rkfUchUd-UqYzx0ctg_WGQI5ryfuowzJHL7_EPNIxtgJYp5L8JuDwraNV7n_p1W7xETpfjQenmYsLCbOnABzCdotSmiNRuQwM037wvN89dUBe-MjH-HUAJJzDz08Y1c4PIYTEztWlgwXFHNW8yOBn1QuiSvGfApGOBo_2WRHG253ZFhkXNje07a6V2Vc6iWaYWN0MJn46mYLY76uW61GJNM" 
+              src={IMAGES.rituals.kashiVishwanathAarti} 
               alt="Kashi Vishwanath Aarti" 
               className="hero-image"
             />

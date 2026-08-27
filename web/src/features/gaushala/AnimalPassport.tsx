@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getAnimals } from '@/lib/api/gaushala';
 import { ArrowLeft, Share2, ShieldCheck } from 'lucide-react';
 import './AnimalPassport.css';
+import { IMAGES } from '@/lib/images';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export function AnimalPassport() {
   const { id } = useParams<{ id: string }>();
@@ -18,11 +20,13 @@ export function AnimalPassport() {
     name: 'Nandi',
     breed: 'Vechur',
     gaushalaName: 'Sattva Gaushala, Kerala',
-    imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDbsrvuwI6woxcpZIHSgRzd2FN7yuhbALJPzGG7AJp5cy4dP_ew7UNDE73T3QaV19XvEN4SMSz2aDs03_0xZrko3x3hq-ItP1AgasMyc7fYSOybmwm-H2ZDcJ1ljGwC8P6KyWOAkBkHtYg4criSft-nNVepP3bct1I_5MYbJJ31lgQO2vfUQIsN8X9cc-zu58ADHZ9JpMRKZxr7WhUQZybrAts25-rpkRYqlxJmiU8ga7NPtXsDad4',
+    imageUrl: IMAGES.animals.nandi,
     status: 'Needs Support'
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return <LoadingScreen message="Accessing Cattle Passport..." subtext="Retrieving lineage and welfare records" />;
+  }
 
   return (
     <div className="passport-page">

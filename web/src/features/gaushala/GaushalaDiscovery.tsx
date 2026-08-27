@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { getAnimals } from '@/lib/api/gaushala';
 import { Heart, MapPin, CheckCircle, ChevronDown, Filter } from 'lucide-react';
 import './Gaushala.css';
+import { IMAGES } from '@/lib/images';
+import { CardSkeleton } from '@/components/ui/LoadingScreen';
 
 export function GaushalaDiscovery() {
   const { data, isLoading, error } = useQuery({
@@ -17,7 +19,7 @@ export function GaushalaDiscovery() {
       name: 'Nandini',
       breed: 'Vechur',
       gaushalaName: 'Govardhan Eco Village, Palghar',
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAWpO-hNWCs-38x81EB8pfgCs0K6t7Go7V2nm75hICMM0HzqrlisZRwugfxtogoVCEGi5IoCE8w4mUBWE_pvS_U85BdKUZtCi9483uorXoM-abjddeR41sKBQDCOPJ17GHMkVFjHhsQ55uW3GnLyCAYMeeVVbeiC-gTWZV_bBQesij9Vllr5Nlx0FiaTYWM2xLKCyHNR-TPTu-WLZB7et25-TQMIRNZt8y3HlMj5b9QqteQNM5DF1Q',
+      imageUrl: IMAGES.animals.nandini,
       needsSupport: true,
       status: 'Available'
     },
@@ -26,7 +28,7 @@ export function GaushalaDiscovery() {
       name: 'Gauri',
       breed: 'Gir',
       gaushalaName: 'Pathmeda Godham, Rajasthan',
-      imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCtJiPx7ghRZtmYreQsTigtuSYVA3_jlqu7LAFN6c-5JD-_CExHmEZ8CvXHmaDpL6B_aVyEV69Bv3ybybxy4oGms-zEcQvu4E4QvCFa7uD5jP4uhulfDXzhoVaJxwikS1pQZK3Zej0K2SB3ePwkGbQXEQddXq0kyc6TtutJHVlxX2fAXd-cbkhciABv5TN72tQ-BZfRbaLmqzLPeWLCR3Y9uWeI8SHfP0rWrXPQ7sQDPH0CF3YE7HI',
+      imageUrl: IMAGES.animals.gauri,
       needsSupport: false,
       status: 'Adopted'
     }
@@ -63,7 +65,7 @@ export function GaushalaDiscovery() {
 
       {/* Grid */}
       <section className="gaushala-grid content-section">
-        {isLoading && <p>Loading animals...</p>}
+        {isLoading && <CardSkeleton count={2} />}
         {error && <p className="text-error">Error loading data.</p>}
         
         {!isLoading && !error && animals.map((animal) => (
