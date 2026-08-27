@@ -30,34 +30,40 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
+
+export function SattvaAppContent() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Auth />} />
+      
+      <Route 
+        element={
+          <ProtectedRoute>
+            <AppShell />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/" element={<Home />} />
+        <Route path="/pujas" element={<PujaDiscovery />} />
+        <Route path="/gaushala" element={<GaushalaDiscovery />} />
+        <Route path="/gaushala/animal/:id" element={<AnimalPassport />} />
+        <Route path="/seva" element={<SevaExperience />} />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
+
+      {/* Fallback route */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Auth />} />
-            
-            <Route 
-              element={
-                <ProtectedRoute>
-                  <AppShell />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/" element={<Home />} />
-              <Route path="/pujas" element={<PujaDiscovery />} />
-              <Route path="/gaushala" element={<GaushalaDiscovery />} />
-              <Route path="/gaushala/animal/:id" element={<AnimalPassport />} />
-              <Route path="/seva" element={<SevaExperience />} />
-              <Route path="/profile" element={<Profile />} />
-            </Route>
-
-            {/* Fallback route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <SattvaAppContent />
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>

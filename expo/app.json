@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Sattva",
+    "slug": "sattva",
+    "version": "1.0.3",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#1E1B18",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.utsavam.sattva"
+    },
+    "android": {
+      "package": "com.utsavam.sattva",
+      "backgroundColor": "#1E1B18"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

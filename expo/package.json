@@ -1,0 +1,32 @@
+{
+  "name": "sattva-expo",
+  "version": "1.0.3",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build:ios": "eas build --platform ios"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "^57.0.14",
+    "@tanstack/react-query": "^5.102.5",
+    "expo": "~57.0.17",
+    "expo-status-bar": "~57.0.1",
+    "firebase": "^12.18.0",
+    "lucide-react": "^1.34.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-web": "^0.21.2",
+    "react-native-webview": "^13.13.2",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "@types/react": "^19.2.18",
+    "typescript": "~5.8.0"
+  },
+  "private": true
+}

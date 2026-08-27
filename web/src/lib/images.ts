@@ -1,29 +1,31 @@
+const BASE_URL = (typeof (globalThis as any).process !== 'undefined' && (globalThis as any).process?.env?.EXPO_BASE_URL) || '';
+
 export const IMAGES = {
   rituals: {
-    kashiVishwanathAarti: '/images/rituals/kashi-vishwanath-aarti.jpg',
+    kashiVishwanathAarti: `${BASE_URL}/images/rituals/kashi-vishwanath-aarti.jpg`,
   },
   animals: {
-    nandini: '/images/animals/nandini.jpg',
-    gauri: '/images/animals/gauri.jpg',
-    nandi: '/images/animals/nandi.jpg',
+    nandini: `${BASE_URL}/images/animals/nandini.jpg`,
+    gauri: `${BASE_URL}/images/animals/gauri.jpg`,
+    nandi: `${BASE_URL}/images/animals/nandi.jpg`,
   },
   pujas: {
-    templeHero: '/images/pujas/temple-hero.jpg',
-    mahaSudarshana: '/images/pujas/maha-sudarshana.jpg',
-    rudraAbhishekam: '/images/pujas/rudra-abhishekam.jpg',
+    templeHero: `${BASE_URL}/images/pujas/temple-hero.jpg`,
+    mahaSudarshana: `${BASE_URL}/images/pujas/maha-sudarshana.jpg`,
+    rudraAbhishekam: `${BASE_URL}/images/pujas/rudra-abhishekam.jpg`,
   },
   seva: {
-    fodderMonsoon: '/images/seva/fodder-monsoon.jpg',
-    nourishment: '/images/seva/nourishment.jpg',
-    healing: '/images/seva/healing.jpg',
-    sanctuary: '/images/seva/sanctuary.jpg',
+    fodderMonsoon: `${BASE_URL}/images/seva/fodder-monsoon.jpg`,
+    nourishment: `${BASE_URL}/images/seva/nourishment.jpg`,
+    healing: `${BASE_URL}/images/seva/healing.jpg`,
+    sanctuary: `${BASE_URL}/images/seva/sanctuary.jpg`,
   },
   profile: {
-    defaultAvatar: '/images/profile/default-avatar.jpg',
+    defaultAvatar: `${BASE_URL}/images/profile/default-avatar.jpg`,
   },
   backgrounds: {
-    authBg: '/images/backgrounds/auth-bg.jpg',
-    impactBg: '/images/backgrounds/impact-bg.jpg',
+    authBg: `${BASE_URL}/images/backgrounds/auth-bg.jpg`,
+    impactBg: `${BASE_URL}/images/backgrounds/impact-bg.jpg`,
   },
 } as const;
 
