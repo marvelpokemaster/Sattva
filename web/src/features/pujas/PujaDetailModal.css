@@ -1,0 +1,163 @@
+.puja-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 16, 14, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .puja-modal-backdrop {
+    align-items: center;
+    padding: 24px;
+  }
+}
+
+.puja-modal-container {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 768px) {
+  .puja-modal-container {
+    border-radius: var(--radius-xl);
+  }
+}
+
+.puja-modal-hero {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
+.puja-modal-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.puja-modal-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(18, 16, 14, 0.9) 0%, rgba(18, 16, 14, 0.2) 60%, transparent 100%);
+}
+
+.puja-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(18, 16, 14, 0.6);
+  color: #FFFFFF;
+  border-radius: 50%;
+  padding: 8px;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s;
+}
+
+.puja-modal-close:hover {
+  background: rgba(18, 16, 14, 0.9);
+}
+
+.puja-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.puja-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.puja-priest-card {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.priest-avatar-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-gold-light);
+  color: var(--color-text-gold);
+  border: 1px solid rgba(184, 134, 11, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-serif);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.sankalpa-section {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sankalpa-title {
+  font-family: var(--font-family-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-terracotta);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sankalpa-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 600px) {
+  .sankalpa-fields-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.puja-footer-bar {
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-surface);
+}
+
+.booking-success-box {
+  text-align: center;
+  padding: 36px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}

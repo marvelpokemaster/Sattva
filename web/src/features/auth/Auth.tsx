@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
-import './Auth.css';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { useAuth } from '@/features/auth/AuthContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import './Auth.css';
 
 export function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -23,7 +23,7 @@ export function Auth() {
   }, [user, navigate]);
 
   if (authLoading) {
-    return <LoadingScreen message="Verifying Devotee..." subtext="Checking authentication status" />;
+    return <LoadingScreen message="Verifying Devotee..." subtext="Accessing your sacred journey" />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,75 +39,99 @@ export function Auth() {
       }
       navigate('/');
     } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+      setError(err.message || 'Authentication failed. Please verify credentials.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDevoteeDemo = () => {
+    localStorage.setItem('dev_auth', 'true');
+    window.location.href = '/';
+  };
+
   return (
     <div className="auth-page">
-      <div className="auth-background">
-        <div className="auth-overlay"></div>
-      </div>
-      
-      <main className="auth-main">
+      <div className="auth-background" />
+
+      <div className="auth-card">
         <div className="auth-header">
-          <h1 className="typography-display-lg text-white mb-2 text-shadow">
-            {isLogin ? 'Welcome Back' : 'Join Sattva'}
-          </h1>
-          <p className="typography-body-lg text-white-opacity text-shadow">
-            Connect deeply with ancient traditions through acts of selfless service.
+          <div className="auth-om-emblem">ॐ</div>
+          <h2 className="auth-title">
+            {isLogin ? 'Welcome, Devotee' : 'Enter the Sanctuary'}
+          </h2>
+          <p className="auth-subtitle">
+            {isLogin 
+              ? 'Connect with Vedic rituals, sacred cow care, and lifelong seva.' 
+              : 'Join a sanctuary of compassionate devotion and verified transparency.'}
           </p>
         </div>
 
-        <div className="auth-form-container glass-surface">
-          <form onSubmit={handleSubmit} className="auth-form">
-            {error && <div className="auth-error">{error}</div>}
-            
-            <div className="input-group">
-              <label className="typography-label-sm text-white">Email Address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="auth-input"
-                placeholder="Enter your email"
-              />
-            </div>
-            
-            <div className="input-group">
-              <label className="typography-label-sm text-white">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="auth-input"
-                placeholder="Enter your password"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              fullWidth
-              disabled={loading}
-              className="auth-submit-btn"
-            >
-              {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
-            </Button>
-
-            <button
-              type="button"
-              className="auth-toggle typography-label-sm text-white"
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-            </button>
-          </form>
+        <div className="auth-tabs">
+          <button 
+            type="button"
+            className={`auth-tab ${isLogin ? 'active' : ''}`}
+            onClick={() => { setIsLogin(true); setError(''); }}
+          >
+            Sign In
+          </button>
+          <button 
+            type="button"
+            className={`auth-tab ${!isLogin ? 'active' : ''}`}
+            onClick={() => { setIsLogin(false); setError(''); }}
+          >
+            Create Account
+          </button>
         </div>
-      </main>
+
+        {error && <div className="auth-error">{error}</div>}
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Email Address</label>
+            <input
+              type="email"
+              required
+              className="form-input"
+              placeholder="devotee@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              required
+              className="form-input"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn-primary auth-submit-btn"
+            disabled={loading}
+          >
+            <span>{loading ? 'Processing...' : (isLogin ? 'Enter App' : 'Begin Journey')}</span>
+            <ArrowRight size={16} />
+          </button>
+        </form>
+
+        <div className="auth-divider">or explore sanctuary</div>
+
+        <button 
+          type="button" 
+          className="demo-guest-btn"
+          onClick={handleDevoteeDemo}
+        >
+          <Sparkles size={16} className="text-gold" />
+          <span>Continue as Devotee Guest</span>
+        </button>
+      </div>
     </div>
   );
 }

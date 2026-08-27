@@ -1,130 +1,169 @@
-import { ArrowRight, Utensils, Home as HomeIcon } from 'lucide-react';
-import './Seva.css';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Heart, ShieldCheck, ArrowRight, Award, Sparkles, Utensils } from 'lucide-react';
+import { getWelfareStats } from '@/lib/api/gaushala';
 import { IMAGES } from '@/lib/images';
+import { DonationModal } from './DonationModal';
+import './Seva.css';
 
 export function SevaExperience() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedInitiative, setSelectedInitiative] = useState('Monsoon Green Fodder & Hay');
+  const [selectedAmount, setSelectedAmount] = useState(501);
+
+  const { data: stats } = useQuery({
+    queryKey: ['welfareStats'],
+    queryFn: () => getWelfareStats(),
+  });
+
+  const totalCows = stats?.totalRescued || 450;
+
+  const initiatives = [
+    {
+      id: 'fodder',
+      title: 'Monsoon Green Fodder & Nutritious Hay',
+      price: 501,
+      priceLabel: '₹501 / Day',
+      image: IMAGES.seva.fodderMonsoon,
+      desc: 'Provide fresh green hybrid Napier grass, organic jaggery, and dry sorghum stalks to nourish the cows during seasonal rains.',
+      impact: 'Feeds 15 cows for an entire day with high-nutrition roughage'
+    },
+    {
+      id: 'healing',
+      title: 'Veterinary Healing & Herbal Medicine',
+      price: 1101,
+      priceLabel: '₹1,101 / Course',
+      image: IMAGES.seva.healing,
+      desc: 'Support compassionate medical treatments, ayurvedic joint oils, sterile bandaging, and antibiotic care for injured or elderly resident cattle.',
+      impact: 'Full 7-day therapeutic recovery kit for one rescued resident'
+    },
+    {
+      id: 'sanctuary',
+      title: 'Sanctuary Shelter & Winter Bedding',
+      price: 2501,
+      priceLabel: '₹2,501 / Month',
+      image: IMAGES.seva.sanctuary,
+      desc: 'Maintain weather-proof shed roofing, clean drinking water borewells, organic dry straw bedding, and daily hawan mosquito repulsion.',
+      impact: 'Shelters 5 mother cows with dry bedding and clean ventilation'
+    }
+  ];
+
+  const handleOpenSeva = (initiativeTitle: string, defaultAmt: number) => {
+    setSelectedInitiative(initiativeTitle);
+    setSelectedAmount(defaultAmt);
+    setModalOpen(true);
+  };
+
   return (
-    <div className="seva-page pb-[100px] md:pb-0">
-      {/* Hero Section */}
-      <section className="seva-hero content-section">
-        <div className="hero-container">
-          <img 
-            src={IMAGES.seva.fodderMonsoon} 
-            alt="Fodder for Monsoon" 
-            className="hero-image"
-          />
-          <div className="hero-gradient"></div>
-          
-          <div className="hero-content">
-            <div className="badge-dark mb-4">
-              <span className="pulse-dot"></span>
-              <span className="typography-label-sm text-white uppercase tracking-widest">Featured Initiative</span>
+    <div className="seva-page">
+      {/* Seva Editorial Hero */}
+      <section className="seva-hero-banner">
+        <div className="flex items-center gap-2">
+          <span className="badge-gold">
+            <ShieldCheck size={13} />
+            100% Tax Deductible (Section 80G)
+          </span>
+        </div>
+        <h1 className="typography-headline-lg">
+          Sacred Gau Seva Initiatives
+        </h1>
+        <p>
+          Every rupee offered flows directly into verified food, medical care, and shelter for {totalCows} rescued cows at Shri Krishna Gaushala.
+        </p>
+
+        <div className="flex flex-wrap gap-4 mt-2">
+          <button 
+            className="btn-primary"
+            onClick={() => handleOpenSeva('Monsoon Green Fodder & Hay', 1100)}
+          >
+            <Heart size={16} fill="currentColor" />
+            <span>Make a Contribution</span>
+          </button>
+        </div>
+      </section>
+
+      {/* Initiatives List */}
+      <section className="seva-initiatives-list">
+        {initiatives.map((item) => (
+          <div key={item.id} className="seva-card">
+            <div className="seva-card-img-box">
+              <img src={item.image} alt={item.title} />
             </div>
-            <h2 className="typography-headline-lg text-white mb-2">Fodder for Monsoon</h2>
-            <p className="typography-body-lg text-white-opacity max-w-lg mb-6">
-              Ensure warmth and nourishment for the gentle residents of the Kerala sanctuary during the heavy rains.
+
+            <div className="seva-card-content">
+              <div className="seva-card-header">
+                <h3 className="seva-card-title">{item.title}</h3>
+                <span className="seva-price-pill">{item.priceLabel}</span>
+              </div>
+
+              <p className="seva-card-desc">{item.desc}</p>
+
+              <div className="flex items-center gap-2 text-xs text-tulsi font-medium">
+                <Sparkles size={14} />
+                <span>Impact: {item.impact}</span>
+              </div>
+
+              <div className="seva-card-footer">
+                <span className="text-xs text-muted">Direct to Gaushala Ledger</span>
+                <button 
+                  className="btn-secondary"
+                  onClick={() => handleOpenSeva(item.title, item.price)}
+                >
+                  <span>Contribute</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* Trust & Transparency Guarantee */}
+      <section className="trust-guarantee-panel">
+        <div className="trust-item">
+          <div className="trust-icon-box">
+            <ShieldCheck size={20} />
+          </div>
+          <div>
+            <h4 className="trust-text-title">100% Audited Transparency</h4>
+            <p className="trust-text-desc">
+              Gaushala financial books and feeding logs are verified quarterly with live receipts.
             </p>
-            <button className="btn-terracotta typography-label-md">Contribute Now</button>
           </div>
         </div>
-      </section>
 
-      {/* Impact Statistics */}
-      <section className="impact-section content-section py-stack-xl">
-        <div className="impact-grid">
-          <div className="impact-text">
-            <h3 className="typography-headline-md text-primary mb-4">Your impact resonates.</h3>
-            <p className="typography-body-md text-variant">
-              Every contribution flows directly to those who need it most, creating a ripple of compassion and care across our sanctuaries.
+        <div className="trust-item">
+          <div className="trust-icon-box">
+            <Award size={20} />
+          </div>
+          <div>
+            <h4 className="trust-text-title">Instant 80G Tax Exemption</h4>
+            <p className="trust-text-desc">
+              Receive official digital tax deduction certificates immediately upon seva completion.
             </p>
           </div>
-          
-          <div className="impact-stats">
-            <div className="stat-card border-l-terracotta">
-              <div>
-                <span className="typography-display-lg text-primary block leading-none">120</span>
-                <span className="typography-label-sm text-variant uppercase tracking-widest mt-2 block">Animals Fed Today</span>
-              </div>
-              <Utensils size={40} className="text-terracotta opacity-50" />
-            </div>
-            
-            <div className="stat-card border-l-secondary ml-8">
-              <div>
-                <span className="typography-display-lg text-primary block leading-none">45</span>
-                <span className="typography-label-sm text-variant uppercase tracking-widest mt-2 block">Shelters Reinforced</span>
-              </div>
-              <HomeIcon size={40} className="text-secondary opacity-50" />
-            </div>
+        </div>
+
+        <div className="trust-item">
+          <div className="trust-icon-box">
+            <Utensils size={20} />
+          </div>
+          <div>
+            <h4 className="trust-text-title">Photo Proof of Feeding</h4>
+            <p className="trust-text-desc">
+              Devotees receive updates and photo confirmations of resident cows receiving their offerings.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Seva Options */}
-      <section className="seva-options content-section mb-stack-xl">
-        <h3 className="typography-headline-md text-primary mb-6">Choose Your Seva</h3>
-        
-        <div className="options-list">
-          {/* Option 1 */}
-          <div className="seva-option-card group">
-            <div className="option-image-container">
-              <img src={IMAGES.seva.nourishment} alt="Nourishment" />
-            </div>
-            <div className="option-content">
-              <div className="option-header">
-                <h4 className="typography-headline-md text-primary">Nourishment (Fodder)</h4>
-                <span className="price-badge">₹500 / day</span>
-              </div>
-              <p className="typography-body-md text-variant mb-4">
-                Provide rich, organic hay and fresh green fodder to ensure the daily nutritional needs of the cows are met.
-              </p>
-              <div className="action-link text-primary mt-auto">
-                <ArrowRight size={16} />
-                <span className="typography-label-sm uppercase tracking-widest">Select Offering</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Option 2 */}
-          <div className="seva-option-card group">
-            <div className="option-image-container">
-              <img src={IMAGES.seva.healing} alt="Healing" />
-            </div>
-            <div className="option-content">
-              <div className="option-header">
-                <h4 className="typography-headline-md text-primary">Healing (Medicine)</h4>
-                <span className="price-badge">₹1200 / course</span>
-              </div>
-              <p className="typography-body-md text-variant mb-4">
-                Support necessary veterinary care, vaccinations, and holistic herbal treatments for sick or elderly animals.
-              </p>
-              <div className="action-link text-primary mt-auto">
-                <ArrowRight size={16} />
-                <span className="typography-label-sm uppercase tracking-widest">Select Offering</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Option 3 */}
-          <div className="seva-option-card group">
-            <div className="option-image-container">
-              <img src={IMAGES.seva.sanctuary} alt="Sanctuary" />
-            </div>
-            <div className="option-content">
-              <div className="option-header">
-                <h4 className="typography-headline-md text-primary">Sanctuary (Shelter)</h4>
-                <span className="price-badge">₹2500 / month</span>
-              </div>
-              <p className="typography-body-md text-variant mb-4">
-                Contribute to the structural maintenance of the Gaushala, ensuring a dry, safe, and warm environment year-round.
-              </p>
-              <div className="action-link text-primary mt-auto">
-                <ArrowRight size={16} />
-                <span className="typography-label-sm uppercase tracking-widest">Select Offering</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Interactive Contribution Modal */}
+      <DonationModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        defaultInitiative={selectedInitiative}
+        defaultAmount={selectedAmount}
+      />
     </div>
   );
 }

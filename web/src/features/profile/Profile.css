@@ -1,259 +1,171 @@
 .profile-page {
   display: flex;
   flex-direction: column;
+  gap: 24px;
+  padding: 16px 0 36px;
 }
 
-.profile-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.flex-col-center {
+/* Devotee Header Identity Card */
+.devotee-profile-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.profile-avatar-container {
+  text-align: center;
   position: relative;
-  width: 128px;
-  height: 128px;
+  overflow: hidden;
 }
 
-.profile-avatar {
+.devotee-profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(135deg, var(--color-surface-subtle) 0%, var(--color-gold-light) 100%);
+  z-index: 0;
+}
+
+.devotee-avatar-box {
+  position: relative;
+  z-index: 1;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--color-surface);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.devotee-avatar-box img {
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-full);
   object-fit: cover;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.edit-btn {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background-color: rgba(234, 232, 228, 0.8);
-  backdrop-filter: blur(12px);
-  border-radius: var(--radius-full);
-  padding: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  cursor: pointer;
-}
-
-.level-badge {
-  background-color: rgba(240, 238, 233, 0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 6px 16px;
-  border-radius: var(--radius-full);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-title {
+.devotee-name-title {
   font-family: var(--font-family-serif);
-  font-size: var(--font-headline-md-size);
-  color: var(--color-on-surface);
-  margin-bottom: var(--spacing-stack-md);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.devotion-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-gutter-grid);
-}
-
-@media (min-width: 768px) {
-  .devotion-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.devotion-card {
-  background-color: var(--color-surface-container-low);
-  padding: var(--spacing-stack-md);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-surface-variant);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
   position: relative;
-  overflow: hidden;
+  z-index: 1;
 }
 
-.upcoming-accent {
-  position: absolute;
-  top: -32px;
-  right: -32px;
-  width: 128px;
-  height: 128px;
-  background-color: rgba(254, 212, 136, 0.2);
-  border-bottom-left-radius: 9999px;
-  transition: transform 0.3s;
-}
-
-.devotion-card.group:hover .upcoming-accent {
-  transform: scale(1.1);
-}
-
-.devotion-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--spacing-stack-sm);
-}
-
-.tag-upcoming {
-  font-family: var(--font-family-sans);
-  font-size: var(--font-label-sm-size);
-  color: var(--color-on-surface-variant);
-  text-transform: uppercase;
-  background-color: rgba(251, 249, 245, 0.5);
-  padding: 4px 8px;
-  border-radius: var(--radius-DEFAULT);
-}
-
-.view-details-btn {
-  font-family: var(--font-family-sans);
-  font-size: var(--font-label-md-size);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.view-details-btn:hover {
-  opacity: 0.8;
-}
-
-.devotion-history-card {
-  background-color: var(--color-surface-container-lowest);
-  padding: var(--spacing-stack-md);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-surface-variant);
-}
-
-.history-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.history-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--color-surface-variant);
-  padding-bottom: 8px;
-}
-
-.history-item:last-child {
-  border-bottom: none;
-}
-
-.tag-completed {
-  font-family: var(--font-family-sans);
-  font-size: var(--font-label-sm-size);
-  color: var(--color-primary);
-  background-color: rgba(46, 59, 35, 0.1);
-  padding: 4px 8px;
-  border-radius: var(--radius-DEFAULT);
-}
-
-.impact-summary-card {
-  background-color: var(--color-surface-container);
-  padding: var(--spacing-stack-lg);
-  border-radius: 16px;
+.devotee-tagline {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
   position: relative;
-  overflow: hidden;
+  z-index: 1;
 }
 
-.impact-bg {
-  position: absolute;
-  inset: 0;
-  opacity: 0.1;
-  background-image: url('/images/backgrounds/impact-bg.jpg');
-}
-
-.impact-content {
+.devotee-badges-row {
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-stack-lg);
-  align-items: center;
-}
-
-@media (min-width: 768px) {
-  .impact-content {
-    flex-direction: row;
-  }
-  .impact-total {
-    flex: 1;
-    text-align: left;
-  }
-  .impact-stats-small {
-    flex: 1;
-    justify-content: flex-start;
-  }
-}
-
-.impact-total {
-  text-align: center;
-}
-
-.impact-stats-small {
-  display: flex;
-  gap: 16px;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
 }
 
-.stat-pill {
+/* Profile Navigation Tabs */
+.profile-nav-tabs {
+  display: flex;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  overflow-x: auto;
+}
+
+.profile-tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.profile-tab-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.profile-tab-btn.active {
+  background: var(--color-surface);
+  color: var(--color-terracotta);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Activity Panels */
+.profile-content-panel {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 12px;
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(4px);
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  min-width: 100px;
+  gap: 16px;
 }
 
-.make-seva-container {
-  margin-top: var(--spacing-stack-md);
-  padding-top: var(--spacing-stack-md);
-  border-top: 1px solid rgba(228, 226, 222, 0.5);
-}
-
-.btn-make-seva {
-  background-color: var(--color-accent-terracotta);
-  color: white;
-  padding: 12px;
+.activity-item-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  border: none;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: opacity 0.2s;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
 }
 
-.btn-make-seva:hover {
-  opacity: 0.9;
+.activity-meta-title {
+  font-family: var(--font-family-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 3px;
 }
 
-.btn-outline {
-  background: transparent;
-  border: 1px solid;
-  padding: 10px 24px;
+.activity-meta-sub {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.family-member-chip {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-signout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(176, 0, 32, 0.08);
+  color: var(--color-error);
+  border: 1px solid rgba(176, 0, 32, 0.2);
+  padding: 12px 24px;
   border-radius: var(--radius-full);
-  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  width: 100%;
+  margin-top: 12px;
+  transition: all 0.2s ease;
+}
+
+.btn-signout:hover {
+  background: rgba(176, 0, 32, 0.15);
 }

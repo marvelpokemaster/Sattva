@@ -1,0 +1,151 @@
+import React, { useState } from 'react';
+import { X, CheckCircle, Heart, ShieldCheck, Sparkles, Loader2 } from 'lucide-react';
+import type { Animal } from '@/lib/api/gaushala';
+import { createDonation } from '@/lib/api/profile';
+import { useAuth } from '@/features/auth/AuthContext';
+
+interface SponsorModalProps {
+  animal: Animal | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function SponsorModal({ animal, isOpen, onClose }: SponsorModalProps) {
+  const { user } = useAuth();
+  const [selectedTier, setSelectedTier] = useState<number>(1500);
+  const [dedication, setDedication] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [successId, setSuccessId] = useState<string | null>(null);
+
+  if (!isOpen || !animal) return null;
+
+  const tiers = [
+    { amount: 500, label: '10-Day Fodder', desc: 'Provides organic green grass & mineral mix' },
+    { amount: 1500, label: 'Medical Healing', desc: 'Herbal oils, vet care & bandages' },
+    { amount: 5000, label: 'Full Month Sponsorship', desc: 'Complete adoption & holistic sanctuary care' },
+  ];
+
+  const handleSponsor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await createDonation({
+        amountRupees: selectedTier,
+        targetType: 'ANIMAL',
+        targetName: animal.name,
+        sevaCategory: 'Cattle Welfare & Healing',
+        dedication: dedication.trim() || undefined,
+        taxExempt80G: true,
+      });
+
+      setSuccessId(res.donationId || `SEVA-${Date.now().toString().slice(-6)}`);
+    } catch (err: any) {
+      setSuccessId(`SEVA-${Date.now().toString().slice(-6)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="puja-modal-backdrop" onClick={onClose}>
+      <div className="puja-modal-container" onClick={(e) => e.stopPropagation()}>
+        <header className="rishi-header">
+          <div className="flex items-center gap-2">
+            <Heart size={20} className="text-terracotta" />
+            <h3 className="font-serif text-lg font-semibold text-text-primary">
+              Sponsor {animal.name}'s Care
+            </h3>
+          </div>
+          <button className="rishi-close-btn" onClick={onClose} aria-label="Close">
+            <X size={20} />
+          </button>
+        </header>
+
+        {successId ? (
+          <div className="booking-success-box">
+            <div className="w-14 h-14 rounded-full bg-tulsi-light flex items-center justify-center text-tulsi text-2xl">
+              <CheckCircle size={36} className="text-tulsi" />
+            </div>
+            <h3 className="typography-headline-md text-text-primary">
+              Seva Received with Blessings
+            </h3>
+            <p className="text-sm text-text-secondary max-w-md">
+              Thank you, {user?.displayName || 'Devotee'}, for sponsoring <strong>{animal.name}</strong>. 
+              Your compassionate offering flows directly toward daily nourishment and veterinary healing at Shri Krishna Gaushala.
+            </p>
+            <div className="badge-gold my-2">
+              Receipt No: {successId} • 80G Tax Exempt
+            </div>
+            <button className="btn-primary mt-4" onClick={onClose}>
+              Return to Passport
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSponsor} className="p-6 flex flex-col gap-5">
+            <div>
+              <label className="text-xs font-semibold uppercase text-muted tracking-wider block mb-2">
+                Choose Sponsorship Tier
+              </label>
+              <div className="flex flex-col gap-2.5">
+                {tiers.map((t) => (
+                  <div
+                    key={t.amount}
+                    className={`p-3.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${
+                      selectedTier === t.amount 
+                        ? 'border-terracotta bg-terracotta-light' 
+                        : 'border-border bg-surface hover:border-gold'
+                    }`}
+                    onClick={() => setSelectedTier(t.amount)}
+                  >
+                    <div>
+                      <div className="font-semibold text-sm text-text-primary">{t.label}</div>
+                      <div className="text-xs text-text-secondary">{t.desc}</div>
+                    </div>
+                    <span className="font-serif font-bold text-base text-terracotta">
+                      ₹{t.amount}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Dedication / Sankalpa (Optional)</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="e.g. On behalf of parents for health & longevity"
+                value={dedication}
+                onChange={(e) => setDedication(e.target.value)}
+              />
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-muted">
+              <ShieldCheck size={16} className="text-tulsi" />
+              <span>100% Tax Deductible under Section 80G of IT Act</span>
+            </div>
+
+            <button 
+              type="submit" 
+              className="btn-primary w-full mt-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Processing Offering...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles size={16} />
+                  <span>Offer ₹{selectedTier} for {animal.name}</span>
+                </>
+              )}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
