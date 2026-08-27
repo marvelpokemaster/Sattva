@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  /* Colors */
+  --color-surface: #fbf9f5;
+  --color-surface-dim: #dcdad6;
+  --color-surface-bright: #fbf9f5;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f5f3ef;
+  --color-surface-container: #f0eee9;
+  --color-surface-container-high: #eae8e4;
+  --color-surface-container-highest: #e4e2de;
+  --color-on-surface: #1b1c19;
+  --color-on-surface-variant: #454840;
+  --color-inverse-surface: #30312e;
+  --color-inverse-on-surface: #f3f0ec;
+  --color-outline: #75786f;
+  --color-outline-variant: #c5c8bd;
+  --color-surface-tint: #556348;
+  --color-primary: #19250f;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2e3b23;
+  --color-on-primary-container: #96a586;
+  --color-inverse-primary: #bcccab;
+  --color-secondary: #775a19;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fed488;
+  --color-on-secondary-container: #785a1a;
+  --color-tertiary: #311a28;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #492f3e;
+  --color-on-tertiary-container: #b996a8;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-background: #fbf9f5;
+  --color-on-background: #1b1c19;
+  --color-surface-variant: #e4e2de;
+  
+  --color-background-ivory: #F9F7F2;
+  --color-accent-terracotta: #B35C44;
+  --color-neutral-sandstone: #D9C5B2;
+  --color-text-charcoal: #1A1A1A;
+
+  /* Typography */
+  --font-family-serif: 'Libre Caslon Text', serif;
+  --font-family-sans: 'Inter', sans-serif;
+
+  --font-display-lg-size: 42px;
+  --font-display-lg-weight: 400;
+  --font-display-lg-line-height: 52px;
+  --font-display-lg-letter-spacing: -0.02em;
+
+  --font-headline-lg-size: 32px;
+  --font-headline-lg-weight: 400;
+  --font-headline-lg-line-height: 40px;
+
+  --font-headline-md-size: 24px;
+  --font-headline-md-weight: 400;
+  --font-headline-md-line-height: 32px;
+
+  --font-body-lg-size: 18px;
+  --font-body-lg-weight: 400;
+  --font-body-lg-line-height: 28px;
+
+  --font-body-md-size: 16px;
+  --font-body-md-weight: 400;
+  --font-body-md-line-height: 24px;
+
+  --font-label-md-size: 14px;
+  --font-label-md-weight: 600;
+  --font-label-md-line-height: 20px;
+  --font-label-md-letter-spacing: 0.05em;
+
+  --font-label-sm-size: 12px;
+  --font-label-sm-weight: 500;
+  --font-label-sm-line-height: 16px;
+  --font-label-sm-letter-spacing: 0.08em;
+
+  /* Rounded */
+  --radius-sm: 0.125rem;
+  --radius-default: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --spacing-margin-page: 24px;
+  --spacing-gutter-grid: 16px;
+  --spacing-stack-xl: 48px;
+  --spacing-stack-lg: 32px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-sm: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-ivory: #161a14; /* Deep charcoal tint of moss green */
+    --color-background: #161a14;
+    --color-surface: #1e241b;
+    --color-surface-container: #232a20;
+    --color-on-background: #F9F7F2;
+    --color-text-charcoal: #D9C5B2; /* Sandstone */
+    --color-on-surface: #F9F7F2;
+    --color-primary: #bcccab;
+    --color-on-primary: #19250f;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background-color: var(--color-background-ivory);
+  color: var(--color-text-charcoal);
+  line-height: var(--font-body-md-line-height);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-serif);
+  font-weight: 400;
+  color: var(--color-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-on-primary);
+  }
+}
+
+.typography-display-lg {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-display-lg-size);
+  font-weight: var(--font-display-lg-weight);
+  line-height: var(--font-display-lg-line-height);
+  letter-spacing: var(--font-display-lg-letter-spacing);
+}
+
+.typography-headline-lg {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-headline-lg-size);
+  font-weight: var(--font-headline-lg-weight);
+  line-height: var(--font-headline-lg-line-height);
+}
+
+.typography-headline-md {
+  font-family: var(--font-family-serif);
+  font-size: var(--font-headline-md-size);
+  font-weight: var(--font-headline-md-weight);
+  line-height: var(--font-headline-md-line-height);
+}
+
+.typography-body-lg {
+  font-size: var(--font-body-lg-size);
+  line-height: var(--font-body-lg-line-height);
+}
+
+.typography-body-md {
+  font-size: var(--font-body-md-size);
+  line-height: var(--font-body-md-line-height);
+}
+
+.typography-label-md {
+  font-size: var(--font-label-md-size);
+  font-weight: var(--font-label-md-weight);
+  line-height: var(--font-label-md-line-height);
+  letter-spacing: var(--font-label-md-letter-spacing);
+  text-transform: uppercase;
+}
+
+.typography-label-sm {
+  font-size: var(--font-label-sm-size);
+  font-weight: var(--font-label-sm-weight);
+  line-height: var(--font-label-sm-line-height);
+  letter-spacing: var(--font-label-sm-letter-spacing);
+  text-transform: uppercase;
+}
+
+/* Glassmorphism */
+.glass-surface {
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-surface {
+    background-color: rgba(25, 37, 15, 0.6); /* Moss Green 60% */
+    border: 1px solid rgba(217, 197, 178, 0.2);
+  }
+}
+
+/* Page Layout */
+.page-container {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-margin-page);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-section {
+  margin-bottom: var(--spacing-stack-xl);
+}
+
+.content-section-tight {
+  margin-bottom: var(--spacing-stack-lg);
+}
+
+/* Base interactive resets */
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}

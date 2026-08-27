@@ -1,0 +1,181 @@
+.passport-page {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 120px; /* Space for floating actions */
+}
+
+.passport-app-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: var(--spacing-margin-page);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+}
+
+.passport-hero {
+  position: relative;
+  width: 100%;
+  height: 65vh;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .passport-hero {
+    height: 75vh;
+  }
+}
+
+.passport-hero .hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.passport-hero .hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2), transparent);
+}
+
+.passport-hero .hero-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.hero-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-gutter-grid);
+}
+
+.stat-card {
+  padding: 12px;
+  border-radius: var(--radius-lg);
+  border-left: 2px solid var(--color-secondary-container);
+}
+
+.border-l-secondary {
+  border-left-color: var(--color-secondary-container) !important;
+}
+
+.passport-details {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.story-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-stack-lg);
+}
+
+@media (min-width: 768px) {
+  .story-layout {
+    flex-direction: row;
+  }
+  .story-text {
+    width: 66.666%;
+  }
+  .story-sidebar {
+    width: 33.333%;
+  }
+}
+
+.leading-relaxed {
+  line-height: 1.625;
+}
+
+.status-card {
+  padding: 24px;
+  border-radius: var(--radius-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.floating-actions-container {
+  position: fixed;
+  bottom: 80px; /* Above the bottom nav bar */
+  left: 0;
+  width: 100%;
+  padding: 0 var(--spacing-margin-page);
+  display: flex;
+  justify-content: center;
+  z-index: 40;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .floating-actions-container {
+    bottom: 32px;
+  }
+}
+
+.floating-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--radius-full);
+  pointer-events: auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 384px;
+}
+
+.glass-dark {
+  background-color: rgba(25, 37, 15, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.action-btn-outline {
+  flex: 1;
+  background: transparent;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: var(--font-label-md-letter-spacing);
+  padding: 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.action-btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.action-btn-filled {
+  flex: 1;
+  background-color: var(--color-surface-container);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: var(--font-label-md-letter-spacing);
+  padding: 12px;
+  border-radius: var(--radius-full);
+  border: none;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.action-btn-filled:hover {
+  background-color: white;
+}

@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@google-cloud/firestore": "^9.0.0"
-  }
-}

@@ -1,0 +1,114 @@
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-background-ivory);
+}
+
+/* Side Navigation (Desktop) */
+.side-nav {
+  display: none;
+  width: 250px;
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-surface-dim);
+  padding: var(--spacing-stack-lg);
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+}
+
+.nav-brand {
+  margin-bottom: var(--spacing-stack-xl);
+  padding: 0 var(--spacing-stack-sm);
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-stack-sm);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-stack-md);
+  padding: var(--spacing-stack-md);
+  border-radius: var(--radius-lg);
+  color: var(--color-outline);
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  background-color: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+}
+
+.nav-item.active {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding-bottom: 80px; /* Space for bottom nav on mobile */
+  width: 100%;
+}
+
+/* Bottom Navigation (Mobile) */
+.bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  z-index: 50;
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  border-bottom: none;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--color-outline);
+  text-decoration: none;
+  transition: color 0.2s;
+  flex: 1;
+}
+
+.bottom-nav-item span {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.bottom-nav-item.active {
+  color: var(--color-primary);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .side-nav {
+    display: flex;
+  }
+  
+  .bottom-nav {
+    display: none;
+  }
+  
+  .main-content {
+    margin-left: 250px;
+    padding-bottom: 0;
+  }
+  
+  .page-container {
+    padding: var(--spacing-stack-xl) var(--spacing-stack-xl);
+  }
+}
